@@ -4,6 +4,7 @@ import com.sky.interceptor.JwtTokenAdminInterceptor;
 import com.sky.interceptor.JwtTokenUserInterceptor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
@@ -15,12 +16,7 @@ import springfox.documentation.builders.RequestHandlerSelectors;
 import springfox.documentation.service.ApiInfo;
 import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.web.plugins.Docket;
-import org.springframework.beans.factory.annotation.Value;
 
-
-/**
- * 配置类，注册web层相关组件
- */
 @Configuration
 @Slf4j
 public class WebMvcConfiguration extends WebMvcConfigurationSupport {
@@ -34,13 +30,9 @@ public class WebMvcConfiguration extends WebMvcConfigurationSupport {
     @Value("${sky.upload-dir:D:/uploads}")
     private String uploadDir;
 
-    /**
-     * 注册自定义拦截器
-     *
-     * @param registry
-     */
+    @Override
     protected void addInterceptors(InterceptorRegistry registry) {
-        log.info("开始注册自定义拦截器...");
+        log.info("register custom interceptors");
         registry.addInterceptor(jwtTokenAdminInterceptor)
                 .addPathPatterns("/admin/**")
                 .excludePathPatterns("/admin/employee/login");
@@ -48,61 +40,57 @@ public class WebMvcConfiguration extends WebMvcConfigurationSupport {
         registry.addInterceptor(jwtTokenUserInterceptor)
                 .addPathPatterns("/user/**")
                 .excludePathPatterns("/user/user/login")
-                .excludePathPatterns("/user/shop/status");
+                .excludePathPatterns("/user/shop/status")
+                .excludePathPatterns("/user/category/list")
+                .excludePathPatterns("/user/dish/list")
+                .excludePathPatterns("/user/dish/*")
+                .excludePathPatterns("/user/dishNote/list")
+                .excludePathPatterns("/user/dishComment/page")
+                .excludePathPatterns("/user/hotelHighVoucher/list");
     }
 
-    /**
-     * 通过knife4j生成接口文档
-     * @return
-     */
     @Bean
     public Docket docket1() {
-        log.info("准备生成接口文档");
         ApiInfo apiInfo = new ApiInfoBuilder()
-                .title("苍穹外卖项目接口文档")
+                .title("Sky take out api docs")
                 .version("2.0")
-                .description("苍穹外卖项目接口文档")
+                .description("Admin APIs")
                 .build();
-        Docket docket = new Docket(DocumentationType.SWAGGER_2)
-                .groupName("管理端接口")
+        return new Docket(DocumentationType.SWAGGER_2)
+                .groupName("admin")
                 .apiInfo(apiInfo)
                 .select()
                 .apis(RequestHandlerSelectors.basePackage("com.sky.controller.admin"))
                 .paths(PathSelectors.any())
                 .build();
-        return docket;
     }
 
     @Bean
     public Docket docket2() {
-        log.info("准备生成接口文档");
         ApiInfo apiInfo = new ApiInfoBuilder()
-                .title("苍穹外卖项目接口文档")
+                .title("Sky take out api docs")
                 .version("2.0")
-                .description("苍穹外卖项目接口文档")
+                .description("User APIs")
                 .build();
-        Docket docket = new Docket(DocumentationType.SWAGGER_2)
-                .groupName("用户端接口")
+        return new Docket(DocumentationType.SWAGGER_2)
+                .groupName("user")
                 .apiInfo(apiInfo)
                 .select()
                 .apis(RequestHandlerSelectors.basePackage("com.sky.controller.user"))
                 .paths(PathSelectors.any())
                 .build();
-        return docket;
     }
 
-    /**
-     * 设置静态资源映射
-     * @param registry
-     */
+    @Override
     protected void addResourceHandlers(ResourceHandlerRegistry registry) {
-        log.info("开始设置静态资源映射");
         registry.addResourceHandler("/doc.html").addResourceLocations("classpath:/META-INF/resources/");
         registry.addResourceHandler("/webjars/**").addResourceLocations("classpath:/META-INF/resources/webjars/");
 
-        // 映射上传目录到 /uploads/**
-        String location = "file:" + (uploadDir.endsWith("/") || uploadDir.endsWith("\\") ? uploadDir : uploadDir + "/");
+        String uploadLocation = "file:" + (uploadDir.endsWith("/") || uploadDir.endsWith("\\") ? uploadDir : uploadDir + "/");
         registry.addResourceHandler("/uploads/**")
-                .addResourceLocations(location);
+                .addResourceLocations(uploadLocation);
+
+        registry.addResourceHandler("/brand/**")
+                .addResourceLocations("classpath:/brand/");
     }
 }
