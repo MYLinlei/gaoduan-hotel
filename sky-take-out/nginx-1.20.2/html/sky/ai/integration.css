@@ -1,0 +1,377 @@
+.sky-ai-sidebar-item {
+  display: flex;
+  align-items: center;
+  height: 56px;
+  line-height: 56px;
+  padding: 0 20px;
+  box-sizing: border-box;
+  border-radius: 4px;
+  list-style: none;
+  color: #bfcbd9;
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.sky-ai-sidebar-item .sky-ai-menu-icon {
+  font-size: 18px;
+  margin-right: 10px;
+}
+
+.sky-ai-sidebar-item:hover,
+.sky-ai-sidebar-item:focus,
+.sky-ai-sidebar-item.sky-ai-sidebar-item-active {
+  background: #fff9e6 !important;
+  outline: none;
+}
+
+.sky-ai-sidebar-item.sky-ai-sidebar-item-active {
+  color: #ffc200 !important;
+}
+
+.hideSidebar .sky-ai-sidebar-item {
+  justify-content: center;
+  padding: 0;
+}
+
+.hideSidebar .sky-ai-sidebar-item span {
+  display: none;
+}
+
+.hideSidebar .sky-ai-sidebar-item .sky-ai-menu-icon {
+  margin-right: 0;
+}
+
+body.sky-ai-active .sidebar-container .el-menu.sky-ai-native-muted .el-menu-item.is-active,
+body.sky-ai-active .sidebar-container .el-menu.sky-ai-native-muted .submenu-title-noDropdown.is-active,
+body.sky-ai-active .sidebar-container .el-menu.sky-ai-native-muted .el-submenu.is-active > .el-submenu__title,
+body.sky-ai-active .sidebar-container .el-menu.sky-ai-native-muted .router-link-active .el-menu-item,
+body.sky-ai-active .sidebar-container .el-menu.sky-ai-native-muted .router-link-exact-active .el-menu-item {
+  background: transparent !important;
+  color: #bfcbd9 !important;
+  border-right-color: transparent !important;
+  box-shadow: none !important;
+}
+
+body.sky-ai-active .sidebar-container .el-menu.sky-ai-native-muted .el-menu-item.is-active i,
+body.sky-ai-active .sidebar-container .el-menu.sky-ai-native-muted .submenu-title-noDropdown.is-active i,
+body.sky-ai-active .sidebar-container .el-menu.sky-ai-native-muted .el-submenu.is-active > .el-submenu__title i,
+body.sky-ai-active .sidebar-container .el-menu.sky-ai-native-muted .router-link-active .el-menu-item i,
+body.sky-ai-active .sidebar-container .el-menu.sky-ai-native-muted .router-link-exact-active .el-menu-item i,
+body.sky-ai-active .sidebar-container .el-menu.sky-ai-native-muted .el-menu-item.is-active span,
+body.sky-ai-active .sidebar-container .el-menu.sky-ai-native-muted .submenu-title-noDropdown.is-active span,
+body.sky-ai-active .sidebar-container .el-menu.sky-ai-native-muted .el-submenu.is-active > .el-submenu__title span,
+body.sky-ai-active .sidebar-container .el-menu.sky-ai-native-muted .router-link-active .el-menu-item span,
+body.sky-ai-active .sidebar-container .el-menu.sky-ai-native-muted .router-link-exact-active .el-menu-item span {
+  color: #bfcbd9 !important;
+}
+
+.sky-ai-panel-host {
+  height: 100%;
+}
+
+.sky-ai-shell {
+  height: 100%;
+  min-height: 100%;
+  padding: 20px;
+  box-sizing: border-box;
+  background: #f3f4f7;
+}
+
+.sky-ai-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 280px;
+  gap: 20px;
+  height: calc(100vh - 124px);
+  min-height: calc(100vh - 120px);
+  align-items: stretch;
+}
+
+.sky-ai-card,
+.sky-ai-sidecard {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  border: 1px solid #ebeef5;
+}
+
+.sky-ai-card {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  overflow: hidden;
+  min-height: 0;
+  height: 100%;
+}
+
+.sky-ai-sidecard {
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  position: sticky;
+  top: 20px;
+  max-height: calc(100vh - 144px);
+  overflow-y: auto;
+}
+
+.sky-ai-sidecard-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+}
+
+.sky-ai-shortcuts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.sky-ai-shortcut {
+  min-height: 36px;
+  padding: 0 14px;
+  border-radius: 18px;
+  border: 1px solid #ebeef5;
+  background: #fff;
+  color: #606266;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.sky-ai-shortcut:hover:not(:disabled) {
+  border-color: #ffc200;
+  color: #333;
+  background: #fff9e6;
+}
+
+.sky-ai-shortcut:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.sky-ai-quick-note {
+  margin: 0;
+  color: #909399;
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.sky-ai-status-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  width: fit-content;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: #fff7e0;
+  color: #7a5200;
+  font-size: 13px;
+}
+
+.sky-ai-status-chip::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ffc200;
+}
+
+.sky-ai-messages {
+  overflow-y: auto;
+  min-height: 0;
+  padding: 24px;
+  background:
+    linear-gradient(180deg, rgba(255, 249, 230, 0.4) 0%, rgba(255, 255, 255, 0) 180px),
+    #fff;
+}
+
+.sky-ai-message {
+  display: flex;
+  margin-bottom: 16px;
+}
+
+.sky-ai-message.user {
+  justify-content: flex-end;
+}
+
+.sky-ai-message.assistant,
+.sky-ai-message.loading {
+  justify-content: flex-start;
+}
+
+.sky-ai-bubble {
+  max-width: min(760px, 78%);
+  padding: 14px 16px;
+  border-radius: 14px;
+  line-height: 1.75;
+  font-size: 14px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.sky-ai-message.assistant .sky-ai-bubble,
+.sky-ai-message.loading .sky-ai-bubble {
+  background: #f7f8fa;
+  border: 1px solid #ebeef5;
+  color: #303133;
+  border-top-left-radius: 6px;
+}
+
+.sky-ai-message.user .sky-ai-bubble {
+  background: linear-gradient(135deg, #ffe49c 0%, #ffc200 100%);
+  color: #3f2b00;
+  border-top-right-radius: 6px;
+  box-shadow: 0 8px 20px rgba(255, 194, 0, 0.22);
+}
+
+.sky-ai-typing {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.sky-ai-typing span {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #909399;
+  animation: sky-ai-bounce 1s infinite ease-in-out;
+}
+
+.sky-ai-typing span:nth-child(2) {
+  animation-delay: 0.12s;
+}
+
+.sky-ai-typing span:nth-child(3) {
+  animation-delay: 0.24s;
+}
+
+@keyframes sky-ai-bounce {
+  0%, 80%, 100% {
+    transform: translateY(0);
+    opacity: 0.4;
+  }
+  40% {
+    transform: translateY(-4px);
+    opacity: 1;
+  }
+}
+
+.sky-ai-composer {
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+  border-top: 1px solid #ebeef5;
+  padding: 16px 20px 20px;
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 -10px 24px rgba(15, 23, 42, 0.06);
+}
+
+.sky-ai-composer-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: end;
+}
+
+.sky-ai-textarea {
+  width: 100%;
+  min-height: 102px;
+  max-height: 220px;
+  resize: vertical;
+  border: 1px solid #dcdfe6;
+  border-radius: 10px;
+  padding: 12px 14px;
+  outline: none;
+  font-size: 14px;
+  line-height: 1.75;
+  color: #303133;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.sky-ai-textarea:focus {
+  border-color: #ffc200;
+  box-shadow: 0 0 0 3px rgba(255, 194, 0, 0.15);
+}
+
+.sky-ai-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-top: 12px;
+}
+
+.sky-ai-send.el-button,
+.sky-ai-clear.el-button {
+  min-width: 96px;
+}
+
+.sky-ai-hint {
+  margin: 0;
+  color: #909399;
+  font-size: 12px;
+}
+
+.sky-ai-toast-wrap {
+  position: fixed;
+  top: 88px;
+  right: 24px;
+  z-index: 3000;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.sky-ai-toast {
+  min-width: 240px;
+  max-width: 360px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.16);
+  background: #fff;
+  border-left: 4px solid #409eff;
+  color: #303133;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.sky-ai-toast.error {
+  border-left-color: #f56c6c;
+}
+
+.sky-ai-toast.success {
+  border-left-color: #67c23a;
+}
+
+@media (max-width: 1280px) {
+  .sky-ai-layout {
+    grid-template-columns: 1fr;
+    height: auto;
+    min-height: calc(100vh - 120px);
+  }
+
+  .sky-ai-sidecard {
+    order: -1;
+    position: static;
+    max-height: none;
+    overflow: visible;
+  }
+}
+
+@media (max-width: 768px) {
+  .sky-ai-shell {
+    padding: 14px;
+  }
+
+  .sky-ai-composer-row {
+    grid-template-columns: 1fr;
+  }
+
+  .sky-ai-bubble {
+    max-width: 92%;
+  }
+
+  .sky-ai-actions {
+    flex-wrap: wrap;
+  }
+}

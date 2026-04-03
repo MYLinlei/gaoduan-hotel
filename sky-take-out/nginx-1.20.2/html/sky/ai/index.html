@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>苍穹外卖 AI 助手</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f5f1e8;
+      --bg-soft: #fbf8f1;
+      --panel: rgba(255, 255, 255, 0.78);
+      --panel-strong: rgba(255, 255, 255, 0.92);
+      --text: #1f2937;
+      --muted: #6b7280;
+      --line: rgba(31, 41, 55, 0.12);
+      --brand: #d97706;
+      --brand-dark: #b45309;
+      --accent: #0f766e;
+      --shadow: 0 20px 60px rgba(15, 23, 42, 0.12);
+      --radius: 24px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      height: 100%;
+      margin: 0;
+      font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(217, 119, 6, 0.16), transparent 30%),
+        radial-gradient(circle at 85% 15%, rgba(15, 118, 110, 0.15), transparent 28%),
+        linear-gradient(135deg, #f6f0e3 0%, #f8fbf9 55%, #f1ece1 100%);
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(31, 41, 55, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(31, 41, 55, 0.03) 1px, transparent 1px);
+      background-size: 36px 36px;
+      mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.5), transparent 90%);
+      opacity: 0.35;
+    }
+
+    .shell {
+      position: relative;
+      min-height: 100vh;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      padding: 24px;
+      gap: 18px;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1.4fr) minmax(280px, 0.9fr);
+      gap: 18px;
+      align-items: stretch;
+    }
+
+    .brand-card, .status-card, .chat-card, .footer-card {
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      background: var(--panel);
+      border: 1px solid rgba(255, 255, 255, 0.58);
+      box-shadow: var(--shadow);
+      border-radius: var(--radius);
+    }
+
+    .brand-card {
+      padding: 28px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .brand-card::after {
+      content: "";
+      position: absolute;
+      right: -64px;
+      top: -64px;
+      width: 180px;
+      height: 180px;
+      background: radial-gradient(circle, rgba(217, 119, 6, 0.18), transparent 70%);
+      border-radius: 50%;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: rgba(217, 119, 6, 0.1);
+      color: var(--brand-dark);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .eyebrow .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 0 6px rgba(15, 118, 110, 0.12);
+    }
+
+    h1 {
+      margin: 18px 0 12px;
+      font-size: clamp(32px, 5vw, 56px);
+      line-height: 1.03;
+      letter-spacing: -0.04em;
+    }
+
+    .lead {
+      margin: 0;
+      max-width: 64ch;
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1.8;
+    }
+
+    .tag-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 22px;
+    }
+
+    .tag {
+      padding: 9px 12px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.72);
+      border: 1px solid rgba(31, 41, 55, 0.08);
+      color: var(--text);
+      font-size: 13px;
+    }
+
+    .status-card {
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .status-box {
+      padding: 18px;
+      border-radius: 18px;
+      background: var(--panel-strong);
+      border: 1px solid rgba(31, 41, 55, 0.08);
+    }
+
+    .status-label {
+      display: block;
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .status-value {
+      font-size: 18px;
+      font-weight: 800;
+    }
+
+    .status-value.online {
+      color: var(--accent);
+    }
+
+    .status-value.offline {
+      color: var(--brand-dark);
+    }
+
+    .hint-list {
+      margin: 0;
+      padding-left: 18px;
+      color: var(--muted);
+      line-height: 1.8;
+      font-size: 14px;
+    }
+
+    .chat-card {
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      min-height: calc(100vh - 260px);
+      overflow: hidden;
+    }
+
+    .chat-header {
+      padding: 20px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.4);
+    }
+
+    .chat-header h2 {
+      margin: 0;
+      font-size: 18px;
+    }
+
+    .chat-header small {
+      color: var(--muted);
+      display: block;
+      margin-top: 4px;
+    }
+
+    .thread-pill {
+      max-width: 340px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      padding: 9px 14px;
+      border-radius: 999px;
+      background: rgba(15, 118, 110, 0.12);
+      color: #155e75;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .messages {
+      padding: 22px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0.58));
+    }
+
+    .message {
+      max-width: min(780px, 100%);
+      border-radius: 18px;
+      padding: 14px 16px;
+      line-height: 1.7;
+      white-space: pre-wrap;
+      word-break: break-word;
+      border: 1px solid transparent;
+      animation: rise 180ms ease-out;
+    }
+
+    @keyframes rise {
+      from { transform: translateY(6px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    .message.user {
+      align-self: flex-end;
+      background: linear-gradient(135deg, rgba(217, 119, 6, 0.15), rgba(245, 158, 11, 0.1));
+      border-color: rgba(217, 119, 6, 0.18);
+    }
+
+    .message.assistant {
+      align-self: flex-start;
+      background: rgba(255, 255, 255, 0.9);
+      border-color: rgba(31, 41, 55, 0.08);
+    }
+
+    .message.meta {
+      align-self: center;
+      background: transparent;
+      color: var(--muted);
+      padding: 6px 2px;
+      border: 0;
+      font-size: 13px;
+    }
+
+    .composer {
+      padding: 18px 22px 22px;
+      border-top: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.55);
+    }
+
+    .composer-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      align-items: end;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 104px;
+      resize: vertical;
+      border: 1px solid rgba(31, 41, 55, 0.12);
+      border-radius: 18px;
+      padding: 14px 16px;
+      font: inherit;
+      line-height: 1.6;
+      background: rgba(255, 255, 255, 0.92);
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    textarea:focus {
+      border-color: rgba(217, 119, 6, 0.45);
+      box-shadow: 0 0 0 4px rgba(217, 119, 6, 0.12);
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    button {
+      border: 0;
+      cursor: pointer;
+      font: inherit;
+      border-radius: 16px;
+      padding: 13px 18px;
+      font-weight: 700;
+      transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+    }
+
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .primary {
+      background: linear-gradient(135deg, var(--brand), var(--brand-dark));
+      color: #fff;
+      box-shadow: 0 12px 28px rgba(217, 119, 6, 0.24);
+    }
+
+    .ghost {
+      background: rgba(255, 255, 255, 0.86);
+      border: 1px solid rgba(31, 41, 55, 0.12);
+      color: var(--text);
+    }
+
+    .footer-card {
+      padding: 16px 20px;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .typing {
+      display: inline-flex;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .typing span {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+      animation: bounce 1s infinite ease-in-out;
+    }
+
+    .typing span:nth-child(2) { animation-delay: 0.1s; }
+    .typing span:nth-child(3) { animation-delay: 0.2s; }
+
+    @keyframes bounce {
+      0%, 80%, 100% { transform: translateY(0); opacity: 0.35; }
+      40% { transform: translateY(-5px); opacity: 1; }
+    }
+
+    @media (max-width: 960px) {
+      .hero {
+        grid-template-columns: 1fr;
+      }
+
+      .chat-card {
+        min-height: 72vh;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .shell {
+        padding: 14px;
+      }
+
+      .brand-card, .status-card, .chat-header, .messages, .composer, .footer-card {
+        border-radius: 20px;
+      }
+
+      .chat-header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .composer-row {
+        grid-template-columns: 1fr;
+      }
+
+      .actions {
+        justify-content: stretch;
+      }
+
+      .actions button {
+        flex: 1;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <section class="hero">
+      <div class="brand-card">
+        <div class="eyebrow"><span class="dot"></span> Sky Take-Out AI Assistant</div>
+        <h1>用自然语言管理你的外卖后台</h1>
+        <p class="lead">
+          这个页面连接后端 AI 助手，可以查询菜品、套餐、分类、员工信息，并支持切换店铺营业状态。
+          对话线程会自动保存到浏览器本地，方便连续追问同一上下文。
+        </p>
+        <div class="tag-row">
+          <div class="tag">菜品 / 套餐查询</div>
+          <div class="tag">分类 / 员工查询</div>
+          <div class="tag">店铺状态切换</div>
+          <div class="tag">多轮对话记忆</div>
+        </div>
+      </div>
+
+      <aside class="status-card">
+        <div class="status-box">
+          <span class="status-label">当前线程</span>
+          <div class="status-value" id="threadIdText">未初始化</div>
+        </div>
+        <div class="status-box">
+          <span class="status-label">使用建议</span>
+          <ul class="hint-list">
+            <li>“帮我查一下当前在售的菜品列表”</li>
+            <li>“套餐 1 号的详细信息是什么”</li>
+            <li>“把店铺切换到打烊状态”</li>
+            <li>“查看员工张三的分页信息”</li>
+          </ul>
+        </div>
+      </aside>
+    </section>
+
+    <section class="chat-card">
+      <div class="chat-header">
+        <div>
+          <h2>AI 对话区</h2>
+          <small>通过 <code>/api/ai/chat</code> 调用后端接口</small>
+        </div>
+        <div class="thread-pill" id="threadIdBadge"></div>
+      </div>
+
+      <div class="messages" id="messages"></div>
+
+      <div class="composer">
+        <div class="composer-row">
+          <textarea id="messageInput" placeholder="输入你的问题，例如：查询当前菜品分页列表，或者把店铺切换为营业中。"></textarea>
+          <div class="actions">
+            <button class="ghost" id="clearBtn" type="button">清空对话</button>
+            <button class="primary" id="sendBtn" type="button">发送消息</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer class="footer-card">
+      <div>后端接口：<strong>/api/ai/chat</strong></div>
+      <div id="footerStatus">等待发送消息</div>
+    </footer>
+  </div>
+
+  <script>
+    const STORAGE_KEY = 'sky_take_out_ai_thread_id';
+    const messagesEl = document.getElementById('messages');
+    const inputEl = document.getElementById('messageInput');
+    const sendBtn = document.getElementById('sendBtn');
+    const clearBtn = document.getElementById('clearBtn');
+    const threadIdBadge = document.getElementById('threadIdBadge');
+    const threadIdText = document.getElementById('threadIdText');
+    const footerStatus = document.getElementById('footerStatus');
+
+    let threadId = localStorage.getItem(STORAGE_KEY) || '';
+    const history = [];
+
+    function generateThreadId() {
+      if (window.crypto && crypto.randomUUID) {
+        return crypto.randomUUID();
+      }
+      return 'thread_' + Date.now() + '_' + Math.random().toString(16).slice(2);
+    }
+
+    function ensureThreadId() {
+      if (!threadId) {
+        threadId = generateThreadId();
+        localStorage.setItem(STORAGE_KEY, threadId);
+      }
+      threadIdBadge.textContent = threadId;
+      threadIdText.textContent = threadId;
+    }
+
+    function setFooter(text) {
+      footerStatus.textContent = text;
+    }
+
+    function getCookie(name) {
+      const prefix = `${name}=`;
+      const parts = document.cookie ? document.cookie.split('; ') : [];
+      for (const part of parts) {
+        if (part.startsWith(prefix)) {
+          return decodeURIComponent(part.slice(prefix.length));
+        }
+      }
+      return '';
+    }
+
+    function getAdminToken() {
+      return getCookie('token') || localStorage.getItem('token') || '';
+    }
+
+    function scrollToBottom() {
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+    }
+
+    function escapeHtml(text) {
+      return text
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#39;');
+    }
+
+    function renderMessages() {
+      messagesEl.innerHTML = history.map((item) => {
+        if (item.type === 'meta') {
+          return `<div class="message meta">${escapeHtml(item.text)}</div>`;
+        }
+        return `<div class="message ${item.type}">${escapeHtml(item.text)}</div>`;
+      }).join('');
+      scrollToBottom();
+    }
+
+    function addMessage(type, text) {
+      history.push({ type, text });
+      renderMessages();
+    }
+
+    function setLoading(loading) {
+      sendBtn.disabled = loading;
+      clearBtn.disabled = loading;
+      inputEl.disabled = loading;
+      if (loading) {
+        setFooter('AI 正在思考并调用工具...');
+      } else {
+        setFooter('线程已保持，可继续追问');
+      }
+    }
+
+    function parseApiPayload(response, rawText) {
+      if (!rawText) {
+        return null;
+      }
+
+      const contentType = response.headers.get('content-type') || '';
+      const trimmed = rawText.trim();
+      const looksLikeJson = trimmed.startsWith('{') || trimmed.startsWith('[');
+
+      if (contentType.includes('application/json') || looksLikeJson) {
+        return JSON.parse(rawText);
+      }
+
+      const preview = trimmed
+        .replace(/<script[\s\S]*?<\/script>/gi, ' ')
+        .replace(/<style[\s\S]*?<\/style>/gi, ' ')
+        .replace(/<[^>]+>/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim()
+        .slice(0, 120);
+
+      const detail = preview ? `: ${preview}` : '';
+      throw new Error(`后端返回了非 JSON 响应，HTTP ${response.status}${detail}`);
+    }
+
+    async function sendMessage() {
+      const message = inputEl.value.trim();
+      if (!message) {
+        inputEl.focus();
+        return;
+      }
+
+      ensureThreadId();
+      addMessage('user', message);
+      inputEl.value = '';
+      setLoading(true);
+      history.push({ type: 'meta', text: '正在请求后端 AI 助手...' });
+      renderMessages();
+
+      try {
+        const token = getAdminToken();
+        const headers = { 'Content-Type': 'application/json' };
+        if (token) {
+          headers.token = token;
+        }
+
+        const response = await fetch('/api/ai/chat', {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({ message, threadId })
+        });
+        const rawText = await response.text();
+        const payload = parseApiPayload(response, rawText);
+        history.pop();
+
+        if (response.status === 401) {
+          throw new Error('未登录或登录已过期，请先登录商家后台后再使用 AI 助手');
+        }
+
+        if (!payload) {
+          throw new Error(`后端返回了空响应，HTTP ${response.status}`);
+        }
+
+        if (!response.ok || payload.code !== 1) {
+          throw new Error(payload.msg || payload.error || `请求失败，HTTP ${response.status}`);
+        }
+
+        threadId = payload.data.threadId;
+        localStorage.setItem(STORAGE_KEY, threadId);
+        ensureThreadId();
+        addMessage('assistant', payload.data.answer || '没有返回内容');
+      } catch (error) {
+        history.pop();
+        addMessage('assistant', '请求失败：' + (error && error.message ? error.message : '未知错误'));
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    function clearConversation() {
+      history.length = 0;
+      renderMessages();
+      threadId = generateThreadId();
+      localStorage.setItem(STORAGE_KEY, threadId);
+      ensureThreadId();
+      addMessage('meta', '已清空当前界面，但线程已重置为新会话。');
+      setFooter('新线程已准备就绪');
+    }
+
+    sendBtn.addEventListener('click', sendMessage);
+    clearBtn.addEventListener('click', clearConversation);
+    inputEl.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter' && (event.ctrlKey || event.metaKey)) {
+        sendMessage();
+      }
+    });
+
+    ensureThreadId();
+    addMessage('assistant', '你好，我是苍穹外卖后台 AI 助手。你可以直接问我：当前有哪些菜品、套餐是否在售、员工分页信息，或者要不要切换店铺营业状态。');
+  </script>
+</body>
+</html>

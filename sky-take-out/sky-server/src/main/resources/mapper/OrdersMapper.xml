@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sky.mapper.OrdersMapper">
+
+    <select id="pageQuery" resultType="com.sky.entity.Orders">
+        <bind name="offset" value="(page - 1) * pageSize"/>
+        select * from orders
+        <where>
+            <if test="number != null and number != ''">
+                and number like concat('%', #{number}, '%')
+            </if>
+            <if test="phone != null and phone != ''">
+                and phone like concat('%', #{phone}, '%')
+            </if>
+            <if test="status != null">
+                and status = #{status}
+            </if>
+            <if test="beginTime != null">
+                and order_time &gt;= #{beginTime}
+            </if>
+            <if test="endTime != null">
+                and order_time &lt;= #{endTime}
+            </if>
+            <if test="userId != null">
+                and user_id = #{userId}
+            </if>
+        </where>
+        order by order_time desc
+        limit #{pageSize} offset #{offset}
+    </select>
+
+    <select id="countPageQuery" resultType="java.lang.Long">
+        select count(*) from orders
+        <where>
+            <if test="number != null and number != ''">
+                and number like concat('%', #{number}, '%')
+            </if>
+            <if test="phone != null and phone != ''">
+                and phone like concat('%', #{phone}, '%')
+            </if>
+            <if test="status != null">
+                and status = #{status}
+            </if>
+            <if test="beginTime != null">
+                and order_time &gt;= #{beginTime}
+            </if>
+            <if test="endTime != null">
+                and order_time &lt;= #{endTime}
+            </if>
+            <if test="userId != null">
+                and user_id = #{userId}
+            </if>
+        </where>
+    </select>
+
+    <update id="update" parameterType="com.sky.entity.Orders">
+        update orders
+        <set>
+            <if test="number != null">number = #{number},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="checkoutTime != null">checkout_time = #{checkoutTime},</if>
+            <if test="payMethod != null">pay_method = #{payMethod},</if>
+            <if test="payStatus != null">pay_status = #{payStatus},</if>
+            <if test="amount != null">amount = #{amount},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="phone != null">phone = #{phone},</if>
+            <if test="address != null">address = #{address},</if>
+            <if test="userName != null">user_name = #{userName},</if>
+            <if test="consignee != null">consignee = #{consignee},</if>
+            <if test="cancelReason != null">cancel_reason = #{cancelReason},</if>
+            <if test="rejectionReason != null">rejection_reason = #{rejectionReason},</if>
+            <if test="cancelTime != null">cancel_time = #{cancelTime},</if>
+            <if test="estimatedDeliveryTime != null">estimated_delivery_time = #{estimatedDeliveryTime},</if>
+            <if test="deliveryStatus != null">delivery_status = #{deliveryStatus},</if>
+            <if test="deliveryTime != null">delivery_time = #{deliveryTime},</if>
+            <if test="packAmount != 0">pack_amount = #{packAmount},</if>
+            <if test="tablewareNumber != 0">tableware_number = #{tablewareNumber},</if>
+            <if test="tablewareStatus != null">tableware_status = #{tablewareStatus},</if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <select id="countByCondition" resultType="java.lang.Integer">
+        select count(*) from orders
+        <where>
+            <if test="status != null">
+                and status = #{status}
+            </if>
+            <if test="begin != null">
+                and order_time &gt;= #{begin}
+            </if>
+            <if test="end != null">
+                and order_time &lt; #{end}
+            </if>
+        </where>
+    </select>
+
+    <select id="sumAmountByCondition" resultType="java.lang.Double">
+        select ifnull(sum(amount), 0) from orders
+        <where>
+            <if test="status != null">
+                and status = #{status}
+            </if>
+            <if test="begin != null">
+                and order_time &gt;= #{begin}
+            </if>
+            <if test="end != null">
+                and order_time &lt; #{end}
+            </if>
+        </where>
+    </select>
+
+    <select id="getSalesTop10" resultType="com.sky.dto.GoodsSalesDTO">
+        select od.name as name, ifnull(sum(od.number), 0) as number
+        from order_detail od
+                 inner join orders o on o.id = od.order_id
+        <where>
+            o.status = 5
+            <if test="begin != null">
+                and o.order_time &gt;= #{begin}
+            </if>
+            <if test="end != null">
+                and o.order_time &lt; #{end}
+            </if>
+        </where>
+        group by od.name
+        order by number desc
+        limit 10
+    </select>
+
+</mapper>

@@ -1,0 +1,19 @@
+sky:
+  upload-dir: D:/JAVASTUDY/sky-take-out/uploads
+  file-host: http://localhost:8081
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    host: localhost
+    port: 3306
+    database: sky_take_out
+    username: root
+    password: 123456
+  redis:
+    host: localhost
+    port: 6379
+    database: 0
+  wechat:
+    appid: wxf45135284f607af6
+    secret: 22a93302c7781dadcdb274cdfc5cd7fa
+
+
