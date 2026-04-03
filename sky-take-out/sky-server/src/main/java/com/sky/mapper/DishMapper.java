@@ -8,7 +8,9 @@ import com.sky.enumeration.OperationType;
 import com.sky.vo.DishVO;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 
 import java.util.List;
 
@@ -73,4 +75,21 @@ public interface DishMapper {
 
     @Select("select count(*) from dish where status = #{status}")
     Integer countByStatus(Integer status);
+
+    @Update("update dish set like_count = greatest(like_count + #{delta}, 0), update_time = now() where id = #{dishId}")
+    void updateLikeCount(@Param("dishId") Long dishId, @Param("delta") Integer delta);
+
+    @Update("update dish set favorite_count = greatest(favorite_count + #{delta}, 0), update_time = now() where id = #{dishId}")
+    void updateFavoriteCount(@Param("dishId") Long dishId, @Param("delta") Integer delta);
+
+    @Update("update dish set note_count = greatest(note_count + #{delta}, 0), update_time = now() where id = #{dishId}")
+    void updateNoteCount(@Param("dishId") Long dishId, @Param("delta") Integer delta);
+
+    @Update("update dish set comment_count = greatest(comment_count + #{delta}, 0), score = #{score}, update_time = now() where id = #{dishId}")
+    void updateCommentStats(@Param("dishId") Long dishId,
+                            @Param("delta") Integer delta,
+                            @Param("score") java.math.BigDecimal score);
+
+    @Select("select d.* from dish d inner join dish_favorite df on d.id = df.dish_id where df.user_id = #{userId} order by df.create_time desc")
+    Page<Dish> pageFavoriteByUserId(@Param("userId") Long userId);
 }

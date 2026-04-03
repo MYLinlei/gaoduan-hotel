@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sky.mapper.HotelHighVoucherMapper">
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        insert into hotel_high_voucher
+        (name, scope_type, scope_id, coupon_type, channel_type, total_stock, available_stock, pay_value, actual_value,
+         begin_time, end_time, seckill_begin_time, seckill_end_time, per_limit, day_limit, status, rules, remark,
+         create_user, update_user, create_time, update_time)
+        values
+        (#{name}, #{scopeType}, #{scopeId}, #{couponType}, #{channelType}, #{totalStock}, #{availableStock}, #{payValue}, #{actualValue},
+         #{beginTime}, #{endTime}, #{seckillBeginTime}, #{seckillEndTime}, #{perLimit}, #{dayLimit}, #{status}, #{rules}, #{remark},
+         #{createUser}, #{updateUser}, #{createTime}, #{updateTime})
+    </insert>
+
+    <update id="update">
+        update hotel_high_voucher
+        <set>
+            <if test="name != null">name = #{name},</if>
+            <if test="scopeType != null">scope_type = #{scopeType},</if>
+            <if test="scopeId != null">scope_id = #{scopeId},</if>
+            <if test="couponType != null">coupon_type = #{couponType},</if>
+            <if test="channelType != null">channel_type = #{channelType},</if>
+            <if test="totalStock != null">total_stock = #{totalStock},</if>
+            <if test="availableStock != null">available_stock = #{availableStock},</if>
+            <if test="payValue != null">pay_value = #{payValue},</if>
+            <if test="actualValue != null">actual_value = #{actualValue},</if>
+            <if test="beginTime != null">begin_time = #{beginTime},</if>
+            <if test="endTime != null">end_time = #{endTime},</if>
+            <if test="seckillBeginTime != null">seckill_begin_time = #{seckillBeginTime},</if>
+            <if test="seckillEndTime != null">seckill_end_time = #{seckillEndTime},</if>
+            <if test="perLimit != null">per_limit = #{perLimit},</if>
+            <if test="dayLimit != null">day_limit = #{dayLimit},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="rules != null">rules = #{rules},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="updateUser != null">update_user = #{updateUser},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <select id="pageQuery" resultType="com.sky.vo.HotelHighVoucherVO">
+        select * from hotel_high_voucher
+        <where>
+            <if test="name != null and name != ''">
+                and name like concat('%', #{name}, '%')
+            </if>
+            <if test="scopeType != null and scopeType != ''">
+                and scope_type = #{scopeType}
+            </if>
+            <if test="channelType != null and channelType != ''">
+                and channel_type = #{channelType}
+            </if>
+            <if test="status != null">
+                and status = #{status}
+            </if>
+        </where>
+        order by create_time desc
+    </select>
+
+    <select id="listEnabled" resultType="com.sky.entity.HotelHighVoucher">
+        select * from hotel_high_voucher
+        where status = 1
+          and begin_time &lt;= now()
+          and end_time &gt;= now()
+          and available_stock > 0
+          <if test="channelType != null and channelType != ''">
+              and channel_type = #{channelType}
+          </if>
+          <if test="scopeType != null and scopeType != ''">
+              and scope_type = #{scopeType}
+          </if>
+          <if test="scopeId != null">
+              and scope_id = #{scopeId}
+          </if>
+        order by create_time desc
+    </select>
+
+    <update id="decreaseAvailableStock">
+        update hotel_high_voucher
+        set available_stock = available_stock - 1
+        where id = #{id}
+          and available_stock > 0
+    </update>
+
+</mapper>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sky.mapper.HotelHighVoucherOrderMapper">
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        insert into hotel_high_voucher_order
+        (voucher_id, user_id, order_id, order_no, status, receive_time, lock_time, use_time, expire_time, cancel_time,
+         source_type, create_time, update_time)
+        values
+        (#{voucherId}, #{userId}, #{orderId}, #{orderNo}, #{status}, #{receiveTime}, #{lockTime}, #{useTime}, #{expireTime}, #{cancelTime},
+         #{sourceType}, now(), now())
+    </insert>
+
+</mapper>

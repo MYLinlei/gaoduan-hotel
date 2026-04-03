@@ -13,12 +13,17 @@ import java.util.List;
 @Mapper
 public interface OrdersMapper {
 
+    void insert(Orders orders);
+
     List<Orders> pageQuery(OrdersPageQueryDTO ordersPageQueryDTO);
 
     Long countPageQuery(OrdersPageQueryDTO ordersPageQueryDTO);
 
     @Select("select * from orders where id = #{id}")
     Orders getById(Long id);
+
+    @Select("select * from orders where number = #{number}")
+    Orders getByNumber(String number);
 
     void update(Orders orders);
 

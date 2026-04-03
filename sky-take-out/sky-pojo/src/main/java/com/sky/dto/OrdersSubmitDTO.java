@@ -9,8 +9,12 @@ import java.time.LocalDateTime;
 
 @Data
 public class OrdersSubmitDTO implements Serializable {
+    //订单类型 1外卖 2堂食
+    private Integer orderType;
     //地址簿id
     private Long addressBookId;
+    //堂食桌号
+    private String tableNo;
     //付款方式
     private int payMethod;
     //备注

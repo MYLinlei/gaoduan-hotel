@@ -27,6 +27,15 @@ public class Orders implements Serializable {
     public static final Integer DELIVERY_IN_PROGRESS = 4;
     public static final Integer COMPLETED = 5;
     public static final Integer CANCELLED = 6;
+    public static final Integer DINE_IN_TO_BE_PREPARED = 7;
+    public static final Integer DINE_IN_IN_PROGRESS = 8;
+    public static final Integer DINE_IN_SERVED = 9;
+
+    /**
+     * 订单类型 1外卖 2堂食
+     */
+    public static final Integer DELIVERY_ORDER = 1;
+    public static final Integer DINE_IN_ORDER = 2;
 
     /**
      * 支付状态 0未支付 1已支付 2退款
@@ -62,6 +71,27 @@ public class Orders implements Serializable {
 
     //支付状态 0未支付 1已支付 2退款
     private Integer payStatus;
+
+    //订单类型 1外卖 2堂食
+    private Integer orderType;
+
+    //堂食桌号
+    private String tableNo;
+
+    //自有骑手ID
+    private Long riderId;
+
+    //配送区域编码
+    private String deliveryZoneCode;
+
+    //优惠券ID
+    private Long couponId;
+
+    //优惠券抵扣金额
+    private BigDecimal couponAmount;
+
+    //实际支付金额
+    private BigDecimal actualPayAmount;
 
     //实收金额
     private BigDecimal amount;
