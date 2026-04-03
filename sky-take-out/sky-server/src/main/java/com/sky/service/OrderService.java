@@ -1,5 +1,6 @@
 package com.sky.service;
 
+import com.sky.dto.OrdersAssignRiderDTO;
 import com.sky.dto.OrdersCancelDTO;
 import com.sky.dto.OrdersConfirmDTO;
 import com.sky.dto.OrdersPageQueryDTO;
@@ -19,6 +20,8 @@ public interface OrderService {
     void rejection(OrdersRejectionDTO ordersRejectionDTO);
 
     void cancel(OrdersCancelDTO ordersCancelDTO);
+
+    void assignRider(OrdersAssignRiderDTO ordersAssignRiderDTO);
 
     void delivery(Long id);
 

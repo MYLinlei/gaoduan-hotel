@@ -3,6 +3,19 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.sky.mapper.OrdersMapper">
 
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        insert into orders
+        (number, status, user_id, address_book_id, order_time, checkout_time, pay_method, pay_status, order_type, table_no,
+         rider_id, delivery_zone_code, coupon_id, coupon_amount, actual_pay_amount, amount, remark,
+         user_name, phone, address, consignee, cancel_reason, rejection_reason, cancel_time, estimated_delivery_time,
+         delivery_status, delivery_time, pack_amount, tableware_number, tableware_status)
+        values
+        (#{number}, #{status}, #{userId}, #{addressBookId}, #{orderTime}, #{checkoutTime}, #{payMethod}, #{payStatus}, #{orderType}, #{tableNo},
+         #{riderId}, #{deliveryZoneCode}, #{couponId}, #{couponAmount}, #{actualPayAmount}, #{amount}, #{remark},
+         #{userName}, #{phone}, #{address}, #{consignee}, #{cancelReason}, #{rejectionReason}, #{cancelTime}, #{estimatedDeliveryTime},
+         #{deliveryStatus}, #{deliveryTime}, #{packAmount}, #{tablewareNumber}, #{tablewareStatus})
+    </insert>
+
     <select id="pageQuery" resultType="com.sky.entity.Orders">
         <bind name="offset" value="(page - 1) * pageSize"/>
         select * from orders
@@ -15,6 +28,9 @@
             </if>
             <if test="status != null">
                 and status = #{status}
+            </if>
+            <if test="orderType != null">
+                and order_type = #{orderType}
             </if>
             <if test="beginTime != null">
                 and order_time &gt;= #{beginTime}
@@ -42,6 +58,9 @@
             <if test="status != null">
                 and status = #{status}
             </if>
+            <if test="orderType != null">
+                and order_type = #{orderType}
+            </if>
             <if test="beginTime != null">
                 and order_time &gt;= #{beginTime}
             </if>
@@ -62,6 +81,13 @@
             <if test="checkoutTime != null">checkout_time = #{checkoutTime},</if>
             <if test="payMethod != null">pay_method = #{payMethod},</if>
             <if test="payStatus != null">pay_status = #{payStatus},</if>
+            <if test="orderType != null">order_type = #{orderType},</if>
+            <if test="tableNo != null">table_no = #{tableNo},</if>
+            <if test="riderId != null">rider_id = #{riderId},</if>
+            <if test="deliveryZoneCode != null">delivery_zone_code = #{deliveryZoneCode},</if>
+            <if test="couponId != null">coupon_id = #{couponId},</if>
+            <if test="couponAmount != null">coupon_amount = #{couponAmount},</if>
+            <if test="actualPayAmount != null">actual_pay_amount = #{actualPayAmount},</if>
             <if test="amount != null">amount = #{amount},</if>
             <if test="remark != null">remark = #{remark},</if>
             <if test="phone != null">phone = #{phone},</if>

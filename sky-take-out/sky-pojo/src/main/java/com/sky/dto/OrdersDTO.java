@@ -33,6 +33,27 @@ public class OrdersDTO implements Serializable {
     //支付方式 1微信，2支付宝
     private Integer payMethod;
 
+    //订单类型 1外卖 2堂食
+    private Integer orderType;
+
+    //堂食桌号
+    private String tableNo;
+
+    //自有骑手ID
+    private Long riderId;
+
+    //配送区域编码
+    private String deliveryZoneCode;
+
+    //优惠券ID
+    private Long couponId;
+
+    //优惠券抵扣金额
+    private BigDecimal couponAmount;
+
+    //实际支付金额
+    private BigDecimal actualPayAmount;
+
     //实收金额
     private BigDecimal amount;
 

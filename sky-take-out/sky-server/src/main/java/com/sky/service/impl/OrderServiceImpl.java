@@ -1,13 +1,17 @@
 package com.sky.service.impl;
 
 import com.sky.constant.MessageConstant;
+import com.sky.dto.OrdersAssignRiderDTO;
 import com.sky.dto.OrdersCancelDTO;
 import com.sky.dto.OrdersConfirmDTO;
 import com.sky.dto.OrdersPageQueryDTO;
 import com.sky.dto.OrdersRejectionDTO;
+import com.sky.entity.HotelRider;
 import com.sky.entity.OrderDetail;
 import com.sky.entity.Orders;
+import com.sky.exception.BaseException;
 import com.sky.exception.OrderBusinessException;
+import com.sky.mapper.HotelRiderMapper;
 import com.sky.mapper.OrderDetailMapper;
 import com.sky.mapper.OrdersMapper;
 import com.sky.result.PageResult;
@@ -33,6 +37,9 @@ public class OrderServiceImpl implements OrderService {
     @Autowired
     private OrderDetailMapper orderDetailMapper;
 
+    @Autowired
+    private HotelRiderMapper hotelRiderMapper;
+
     @Override
     public PageResult conditionSearch(OrdersPageQueryDTO ordersPageQueryDTO) {
         List<Orders> ordersList = ordersMapper.pageQuery(ordersPageQueryDTO);
@@ -40,10 +47,7 @@ public class OrderServiceImpl implements OrderService {
 
         List<OrderVO> records = new ArrayList<>();
         for (Orders orders : ordersList) {
-            OrderVO orderVO = new OrderVO();
-            BeanUtils.copyProperties(orders, orderVO);
-            orderVO.setOrderDishes(buildOrderDishes(orderDetailMapper.getByOrderId(orders.getId())));
-            records.add(orderVO);
+            records.add(buildOrderVO(orders, false));
         }
         return new PageResult(total, records);
     }
@@ -51,47 +55,39 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public OrderVO details(Long orderId) {
         Orders orders = getExistingOrder(orderId);
-        List<OrderDetail> orderDetailList = orderDetailMapper.getByOrderId(orderId);
-
-        OrderVO orderVO = new OrderVO();
-        BeanUtils.copyProperties(orders, orderVO);
-        orderVO.setOrderDetailList(orderDetailList);
-        orderVO.setOrderDishes(buildOrderDishes(orderDetailList));
-        return orderVO;
+        return buildOrderVO(orders, true);
     }
 
     @Override
     @Transactional
     public void confirm(OrdersConfirmDTO ordersConfirmDTO) {
         Orders orders = getExistingOrder(ordersConfirmDTO.getId());
-        if (!Orders.TO_BE_CONFIRMED.equals(orders.getStatus())) {
+        if (!canConfirm(orders)) {
             throw new OrderBusinessException(MessageConstant.ORDER_STATUS_ERROR);
         }
 
-        Orders updateOrder = Orders.builder()
+        ordersMapper.update(Orders.builder()
                 .id(orders.getId())
-                .status(Orders.CONFIRMED)
-                .build();
-        ordersMapper.update(updateOrder);
+                .status(nextConfirmStatus(orders))
+                .build());
     }
 
     @Override
     @Transactional
     public void rejection(OrdersRejectionDTO ordersRejectionDTO) {
         Orders orders = getExistingOrder(ordersRejectionDTO.getId());
-        if (!Orders.TO_BE_CONFIRMED.equals(orders.getStatus())) {
+        if (!canReject(orders)) {
             throw new OrderBusinessException(MessageConstant.ORDER_STATUS_ERROR);
         }
 
-        Orders updateOrder = Orders.builder()
+        ordersMapper.update(Orders.builder()
                 .id(orders.getId())
                 .status(Orders.CANCELLED)
                 .rejectionReason(ordersRejectionDTO.getRejectionReason())
                 .cancelReason(ordersRejectionDTO.getRejectionReason())
                 .cancelTime(LocalDateTime.now())
                 .payStatus(Orders.PAID.equals(orders.getPayStatus()) ? Orders.REFUND : orders.getPayStatus())
-                .build();
-        ordersMapper.update(updateOrder);
+                .build());
     }
 
     @Override
@@ -102,53 +98,75 @@ public class OrderServiceImpl implements OrderService {
             throw new OrderBusinessException(MessageConstant.ORDER_STATUS_ERROR);
         }
 
-        Orders updateOrder = Orders.builder()
+        ordersMapper.update(Orders.builder()
                 .id(orders.getId())
                 .status(Orders.CANCELLED)
                 .cancelReason(ordersCancelDTO.getCancelReason())
                 .cancelTime(LocalDateTime.now())
                 .payStatus(Orders.PAID.equals(orders.getPayStatus()) ? Orders.REFUND : orders.getPayStatus())
-                .build();
-        ordersMapper.update(updateOrder);
+                .build());
+    }
+
+    @Override
+    @Transactional
+    public void assignRider(OrdersAssignRiderDTO ordersAssignRiderDTO) {
+        Orders orders = getExistingOrder(ordersAssignRiderDTO.getId());
+        if (!Orders.DELIVERY_ORDER.equals(orders.getOrderType())) {
+            throw new BaseException("dine-in order does not need rider assignment");
+        }
+        if (!Orders.CONFIRMED.equals(orders.getStatus()) && !Orders.DELIVERY_IN_PROGRESS.equals(orders.getStatus())) {
+            throw new OrderBusinessException(MessageConstant.ORDER_STATUS_ERROR);
+        }
+
+        HotelRider hotelRider = hotelRiderMapper.getById(ordersAssignRiderDTO.getRiderId());
+        if (hotelRider == null) {
+            throw new BaseException("rider not found");
+        }
+        if (hotelRider.getStatus() == null || hotelRider.getStatus() != 1) {
+            throw new BaseException("rider is disabled");
+        }
+
+        ordersMapper.update(Orders.builder()
+                .id(orders.getId())
+                .riderId(hotelRider.getId())
+                .build());
     }
 
     @Override
     @Transactional
     public void delivery(Long id) {
         Orders orders = getExistingOrder(id);
-        if (!Orders.CONFIRMED.equals(orders.getStatus())) {
+        if (!canDispatchOrServe(orders)) {
             throw new OrderBusinessException(MessageConstant.ORDER_STATUS_ERROR);
         }
 
-        Orders updateOrder = Orders.builder()
+        ordersMapper.update(Orders.builder()
                 .id(id)
-                .status(Orders.DELIVERY_IN_PROGRESS)
-                .build();
-        ordersMapper.update(updateOrder);
+                .status(nextDispatchOrServeStatus(orders))
+                .build());
     }
 
     @Override
     @Transactional
     public void complete(Long id) {
         Orders orders = getExistingOrder(id);
-        if (!Orders.DELIVERY_IN_PROGRESS.equals(orders.getStatus())) {
+        if (!canComplete(orders)) {
             throw new OrderBusinessException(MessageConstant.ORDER_STATUS_ERROR);
         }
 
-        Orders updateOrder = Orders.builder()
+        ordersMapper.update(Orders.builder()
                 .id(id)
                 .status(Orders.COMPLETED)
                 .deliveryTime(LocalDateTime.now())
-                .build();
-        ordersMapper.update(updateOrder);
+                .build());
     }
 
     @Override
     public OrderStatisticsVO statistics() {
         OrderStatisticsVO orderStatisticsVO = new OrderStatisticsVO();
-        orderStatisticsVO.setToBeConfirmed(defaultZero(ordersMapper.countByCondition(Orders.TO_BE_CONFIRMED, null, null)));
-        orderStatisticsVO.setConfirmed(defaultZero(ordersMapper.countByCondition(Orders.CONFIRMED, null, null)));
-        orderStatisticsVO.setDeliveryInProgress(defaultZero(ordersMapper.countByCondition(Orders.DELIVERY_IN_PROGRESS, null, null)));
+        orderStatisticsVO.setToBeConfirmed(sumStatuses(Orders.TO_BE_CONFIRMED, Orders.DINE_IN_TO_BE_PREPARED));
+        orderStatisticsVO.setConfirmed(sumStatuses(Orders.CONFIRMED, Orders.DINE_IN_IN_PROGRESS));
+        orderStatisticsVO.setDeliveryInProgress(sumStatuses(Orders.DELIVERY_IN_PROGRESS, Orders.DINE_IN_SERVED));
         return orderStatisticsVO;
     }
 
@@ -158,6 +176,23 @@ public class OrderServiceImpl implements OrderService {
             throw new OrderBusinessException(MessageConstant.ORDER_NOT_FOUND);
         }
         return orders;
+    }
+
+    private OrderVO buildOrderVO(Orders orders, boolean includeDetailList) {
+        List<OrderDetail> orderDetailList = orderDetailMapper.getByOrderId(orders.getId());
+        OrderVO orderVO = new OrderVO();
+        BeanUtils.copyProperties(orders, orderVO);
+        orderVO.setOrderDishes(buildOrderDishes(orderDetailList));
+        if (includeDetailList) {
+            orderVO.setOrderDetailList(orderDetailList);
+        }
+        if (orders.getRiderId() != null) {
+            HotelRider hotelRider = hotelRiderMapper.getById(orders.getRiderId());
+            if (hotelRider != null) {
+                orderVO.setRiderName(hotelRider.getName());
+            }
+        }
+        return orderVO;
     }
 
     private String buildOrderDishes(List<OrderDetail> orderDetailList) {
@@ -173,5 +208,50 @@ public class OrderServiceImpl implements OrderService {
 
     private Integer defaultZero(Integer value) {
         return value == null ? 0 : value;
+    }
+
+    private boolean canConfirm(Orders orders) {
+        if (Orders.DINE_IN_ORDER.equals(orders.getOrderType())) {
+            return Orders.DINE_IN_TO_BE_PREPARED.equals(orders.getStatus());
+        }
+        return Orders.TO_BE_CONFIRMED.equals(orders.getStatus());
+    }
+
+    private Integer nextConfirmStatus(Orders orders) {
+        return Orders.DINE_IN_ORDER.equals(orders.getOrderType())
+                ? Orders.DINE_IN_IN_PROGRESS
+                : Orders.CONFIRMED;
+    }
+
+    private boolean canReject(Orders orders) {
+        return canConfirm(orders);
+    }
+
+    private boolean canDispatchOrServe(Orders orders) {
+        if (Orders.DINE_IN_ORDER.equals(orders.getOrderType())) {
+            return Orders.DINE_IN_IN_PROGRESS.equals(orders.getStatus());
+        }
+        return Orders.CONFIRMED.equals(orders.getStatus()) && orders.getRiderId() != null;
+    }
+
+    private Integer nextDispatchOrServeStatus(Orders orders) {
+        return Orders.DINE_IN_ORDER.equals(orders.getOrderType())
+                ? Orders.DINE_IN_SERVED
+                : Orders.DELIVERY_IN_PROGRESS;
+    }
+
+    private boolean canComplete(Orders orders) {
+        if (Orders.DINE_IN_ORDER.equals(orders.getOrderType())) {
+            return Orders.DINE_IN_SERVED.equals(orders.getStatus());
+        }
+        return Orders.DELIVERY_IN_PROGRESS.equals(orders.getStatus());
+    }
+
+    private Integer sumStatuses(Integer... statuses) {
+        int total = 0;
+        for (Integer status : statuses) {
+            total += defaultZero(ordersMapper.countByCondition(status, null, null));
+        }
+        return total;
     }
 }

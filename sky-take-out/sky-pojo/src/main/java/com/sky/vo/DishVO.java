@@ -28,6 +28,14 @@ public class DishVO implements Serializable {
     private String image;
     //描述信息
     private String description;
+    private String tagType;
+    private Integer luxuryLevel;
+    private Integer recommendWeight;
+    private Integer likeCount;
+    private Integer favoriteCount;
+    private Integer noteCount;
+    private Integer commentCount;
+    private BigDecimal score;
     //0 停售 1 起售
     private Integer status;
     //更新时间
@@ -36,6 +44,10 @@ public class DishVO implements Serializable {
     private String categoryName;
     //菜品关联的口味
     private List<DishFlavor> flavors = new ArrayList<>();
+
+    private Boolean liked;
+
+    private Boolean favorited;
 
     //private Integer copies;
 }
