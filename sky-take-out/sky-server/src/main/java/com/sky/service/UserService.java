@@ -1,16 +1,16 @@
 package com.sky.service;
 
+import com.sky.dto.UserDTO;
 import com.sky.dto.UserLoginDTO;
-import com.sky.entity.User;
-import org.springframework.stereotype.Service;
-
+import com.sky.vo.UserLoginVO;
 
 public interface UserService {
 
-    /**
-     * 微信登陆功能
-     * @param userLoginDTO
-     * @return
-     */
-    User wxLogin(UserLoginDTO userLoginDTO);
+    void sendCode(String phone);
+
+    UserLoginVO login(UserLoginDTO userLoginDTO);
+
+    void logout(String token);
+
+    UserDTO currentUser();
 }

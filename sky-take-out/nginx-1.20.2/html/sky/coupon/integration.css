@@ -1,0 +1,319 @@
+.sky-coupon-sidebar-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 56px;
+  padding: 0 20px;
+  color: #bfcbd9;
+  cursor: pointer;
+  outline: none;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.sky-coupon-sidebar-item i {
+  margin-right: 16px;
+  font-size: 18px;
+}
+
+.sky-coupon-sidebar-item:hover,
+.sky-coupon-sidebar-item:focus,
+.sky-coupon-sidebar-item.sky-coupon-sidebar-item-active {
+  background: rgba(64, 158, 255, 0.16);
+  color: #ffd88f;
+}
+
+body.sky-coupon-active .sidebar-container .el-menu.sky-coupon-native-muted .el-menu-item.is-active,
+body.sky-coupon-active .sidebar-container .el-menu.sky-coupon-native-muted .submenu-title-noDropdown.is-active,
+body.sky-coupon-active .sidebar-container .el-menu.sky-coupon-native-muted .el-submenu.is-active > .el-submenu__title,
+body.sky-coupon-active .sidebar-container .el-menu.sky-coupon-native-muted .router-link-active .el-menu-item,
+body.sky-coupon-active .sidebar-container .el-menu.sky-coupon-native-muted .router-link-exact-active .el-menu-item {
+  background: transparent !important;
+  color: #bfcbd9 !important;
+}
+
+.sky-coupon-panel-host {
+  width: 100%;
+  height: 100%;
+}
+
+.sky-coupon-shell {
+  min-height: calc(100vh - 108px);
+  padding: 24px;
+  background: linear-gradient(180deg, #f7f9fc 0%, #eef3f7 100%);
+}
+
+.sky-coupon-card,
+.sky-coupon-modal-card {
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 18px 44px rgba(16, 24, 40, 0.08);
+}
+
+.sky-coupon-card {
+  padding: 24px;
+}
+
+.sky-coupon-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: flex-start;
+  margin-bottom: 18px;
+}
+
+.sky-coupon-header h2 {
+  margin: 6px 0 8px;
+  font-size: 28px;
+  color: #172b4d;
+}
+
+.sky-coupon-eyebrow {
+  margin: 0;
+  font-size: 12px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #8b6d2e;
+}
+
+.sky-coupon-desc {
+  margin: 0;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.sky-coupon-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.sky-coupon-filters {
+  display: grid;
+  grid-template-columns: minmax(220px, 1.6fr) 180px auto auto;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.sky-coupon-input,
+.sky-coupon-select,
+.sky-coupon-textarea {
+  width: 100%;
+  border: 1px solid #d7deea;
+  border-radius: 12px;
+  padding: 10px 12px;
+  font-size: 14px;
+  color: #1f2937;
+  background: #fff;
+  box-sizing: border-box;
+}
+
+.sky-coupon-textarea {
+  min-height: 92px;
+  resize: vertical;
+}
+
+.sky-coupon-table-wrap {
+  overflow: auto;
+  border: 1px solid #edf1f7;
+  border-radius: 16px;
+}
+
+.sky-coupon-table {
+  width: 100%;
+  min-width: 1080px;
+  border-collapse: collapse;
+  background: #fff;
+}
+
+.sky-coupon-table th,
+.sky-coupon-table td {
+  padding: 14px 16px;
+  border-bottom: 1px solid #edf1f7;
+  text-align: left;
+  vertical-align: top;
+  font-size: 13px;
+  color: #334155;
+}
+
+.sky-coupon-table th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: #f8fafc;
+  color: #475569;
+  font-weight: 600;
+}
+
+.sky-coupon-table td strong {
+  display: block;
+  margin-bottom: 4px;
+  color: #102a43;
+}
+
+.sky-coupon-meta {
+  display: grid;
+  gap: 3px;
+  color: #6b7280;
+}
+
+.sky-coupon-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 72px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.sky-coupon-badge.on {
+  background: rgba(34, 197, 94, 0.14);
+  color: #15803d;
+}
+
+.sky-coupon-badge.off {
+  background: rgba(148, 163, 184, 0.18);
+  color: #475569;
+}
+
+.sky-coupon-row-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.sky-coupon-button {
+  border: none;
+  border-radius: 12px;
+  padding: 10px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.16s ease, box-shadow 0.16s ease, opacity 0.16s ease;
+}
+
+.sky-coupon-button:hover {
+  transform: translateY(-1px);
+}
+
+.sky-coupon-button.primary {
+  background: linear-gradient(135deg, #17324d, #2a4a68);
+  color: #fff;
+  box-shadow: 0 10px 20px rgba(23, 50, 77, 0.18);
+}
+
+.sky-coupon-button.secondary {
+  background: #eef2f7;
+  color: #243b53;
+}
+
+.sky-coupon-button.gold {
+  background: linear-gradient(135deg, #b88a2d, #d9b86b);
+  color: #fffdf7;
+  box-shadow: 0 10px 22px rgba(184, 138, 45, 0.22);
+}
+
+.sky-coupon-button.ghost {
+  background: transparent;
+  color: #1d4ed8;
+  border: 1px solid #bfdbfe;
+}
+
+.sky-coupon-button.warn {
+  background: rgba(239, 68, 68, 0.12);
+  color: #b91c1c;
+}
+
+.sky-coupon-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.sky-coupon-pagination {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
+  margin-top: 16px;
+  color: #6b7280;
+  font-size: 13px;
+}
+
+.sky-coupon-empty {
+  padding: 32px 16px;
+  text-align: center;
+  color: #64748b;
+}
+
+.sky-coupon-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 2600;
+}
+
+.sky-coupon-modal__mask {
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.36);
+}
+
+.sky-coupon-modal__panel {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: min(980px, calc(100vw - 32px));
+  max-height: calc(100vh - 48px);
+  overflow: auto;
+  padding: 24px;
+}
+
+.sky-coupon-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px 16px;
+}
+
+.sky-coupon-field {
+  display: grid;
+  gap: 8px;
+}
+
+.sky-coupon-field.span-2 {
+  grid-column: span 2;
+}
+
+.sky-coupon-field label {
+  color: #334155;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.sky-coupon-modal__footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+@media (max-width: 900px) {
+  .sky-coupon-shell {
+    padding: 16px;
+  }
+
+  .sky-coupon-filters,
+  .sky-coupon-form {
+    grid-template-columns: 1fr;
+  }
+
+  .sky-coupon-field.span-2 {
+    grid-column: span 1;
+  }
+
+  .sky-coupon-header {
+    flex-direction: column;
+  }
+}

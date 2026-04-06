@@ -231,7 +231,7 @@ public class OrderServiceImpl implements OrderService {
         if (Orders.DINE_IN_ORDER.equals(orders.getOrderType())) {
             return Orders.DINE_IN_IN_PROGRESS.equals(orders.getStatus());
         }
-        return Orders.CONFIRMED.equals(orders.getStatus()) && orders.getRiderId() != null;
+        return Orders.CONFIRMED.equals(orders.getStatus());
     }
 
     private Integer nextDispatchOrServeStatus(Orders orders) {

@@ -39,7 +39,8 @@ public class WebMvcConfiguration extends WebMvcConfigurationSupport {
 
         registry.addInterceptor(jwtTokenUserInterceptor)
                 .addPathPatterns("/user/**")
-                .excludePathPatterns("/user/user/login")
+                .excludePathPatterns("/user/login")
+                .excludePathPatterns("/user/sendCode")
                 .excludePathPatterns("/user/shop/status")
                 .excludePathPatterns("/user/category/list")
                 .excludePathPatterns("/user/dish/list")
@@ -90,7 +91,7 @@ public class WebMvcConfiguration extends WebMvcConfigurationSupport {
         registry.addResourceHandler("/uploads/**")
                 .addResourceLocations(uploadLocation);
 
-        registry.addResourceHandler("/brand/**")
-                .addResourceLocations("classpath:/brand/");
+        registry.addResourceHandler("/guest/**")
+                .addResourceLocations("classpath:/guest/");
     }
 }

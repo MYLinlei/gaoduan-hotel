@@ -13,6 +13,7 @@ import com.sky.mapper.HotelHighVoucherMapper;
 import com.sky.mapper.HotelHighVoucherOrderMapper;
 import com.sky.result.PageResult;
 import com.sky.service.HotelHighVoucherService;
+import com.sky.vo.HotelHighVoucherOrderVO;
 import com.sky.vo.HotelHighVoucherVO;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
@@ -24,6 +25,7 @@ import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -69,14 +71,33 @@ public class HotelHighVoucherServiceImpl implements HotelHighVoucherService {
     public void update(HotelHighVoucherDTO hotelHighVoucherDTO) {
         HotelHighVoucher current = hotelHighVoucherMapper.getById(hotelHighVoucherDTO.getId());
         if (current == null) {
-            throw new OrderBusinessException("高端优惠券不存在");
+            throw new OrderBusinessException("优惠券不存在");
         }
+
         HotelHighVoucher voucher = new HotelHighVoucher();
         BeanUtils.copyProperties(hotelHighVoucherDTO, voucher);
         normalizeVoucher(voucher);
         hotelHighVoucherMapper.update(voucher);
         Integer stock = voucher.getAvailableStock() != null ? voucher.getAvailableStock() : current.getAvailableStock();
         syncVoucherStockToRedis(voucher.getId(), stock);
+    }
+
+    @Override
+    @Transactional
+    public void updateStatus(Long id, Integer status) {
+        HotelHighVoucher current = hotelHighVoucherMapper.getById(id);
+        if (current == null) {
+            throw new OrderBusinessException("优惠券不存在");
+        }
+        if (status == null || (status != 0 && status != 1)) {
+            throw new OrderBusinessException("优惠券状态错误");
+        }
+
+        hotelHighVoucherMapper.update(HotelHighVoucher.builder()
+                .id(id)
+                .status(status)
+                .build());
+        syncVoucherStockToRedis(id, current.getAvailableStock());
     }
 
     @Override
@@ -102,7 +123,7 @@ public class HotelHighVoucherServiceImpl implements HotelHighVoucherService {
         Long userId = BaseContext.getCurrentId();
         HotelHighVoucher voucher = hotelHighVoucherMapper.getById(voucherId);
         if (voucher == null || voucher.getStatus() == null || voucher.getStatus() != 1) {
-            throw new OrderBusinessException("高端优惠券不存在或未启用");
+            throw new OrderBusinessException("优惠券不存在或未启用");
         }
         validateVoucherWindow(voucher);
         initVoucherStockIfAbsent(voucher);
@@ -120,7 +141,7 @@ public class HotelHighVoucherServiceImpl implements HotelHighVoucherService {
             throw new OrderBusinessException("优惠券库存不足");
         }
         if (scriptResult == 2L) {
-            throw new OrderBusinessException("不能重复抢购该优惠券");
+            throw new OrderBusinessException("不能重复领取该优惠券");
         }
 
         String lockKey = VoucherRedisConstant.HIGH_VOUCHER_USER_LOCK + voucherId + ":" + userId;
@@ -148,17 +169,73 @@ public class HotelHighVoucherServiceImpl implements HotelHighVoucherService {
         }
     }
 
+    @Override
+    public List<HotelHighVoucherOrderVO> myCoupons(Integer status) {
+        return hotelHighVoucherOrderMapper.listByUserId(BaseContext.getCurrentId(), status);
+    }
+
+    @Override
+    public HotelHighVoucherOrderVO getOwnedCoupon(Long voucherOrderId, Long userId, BigDecimal orderAmount) {
+        if (voucherOrderId == null) {
+            return null;
+        }
+
+        HotelHighVoucherOrder voucherOrder = hotelHighVoucherOrderMapper.getById(voucherOrderId);
+        if (voucherOrder == null || !userId.equals(voucherOrder.getUserId())) {
+            throw new OrderBusinessException("优惠券不存在");
+        }
+        if (voucherOrder.getStatus() == null || voucherOrder.getStatus() != 1) {
+            throw new OrderBusinessException("优惠券不可用");
+        }
+
+        HotelHighVoucher voucher = hotelHighVoucherMapper.getById(voucherOrder.getVoucherId());
+        if (voucher == null || voucher.getStatus() == null || voucher.getStatus() != 1) {
+            throw new OrderBusinessException("优惠券不可用");
+        }
+        validateVoucherWindow(voucher);
+        if (orderAmount == null || orderAmount.compareTo(voucher.getPayValue()) < 0) {
+            throw new OrderBusinessException("未达到优惠券使用门槛");
+        }
+
+        return buildVoucherOrderVO(voucherOrder, voucher);
+    }
+
+    @Override
+    @Transactional
+    public void useCoupon(Long voucherOrderId, Long orderId, Long userId) {
+        if (voucherOrderId == null) {
+            return;
+        }
+
+        HotelHighVoucherOrder voucherOrder = hotelHighVoucherOrderMapper.getById(voucherOrderId);
+        if (voucherOrder == null || !userId.equals(voucherOrder.getUserId())) {
+            throw new OrderBusinessException("优惠券不存在");
+        }
+        if (voucherOrder.getStatus() == null || voucherOrder.getStatus() != 1) {
+            throw new OrderBusinessException("优惠券状态错误");
+        }
+
+        hotelHighVoucherOrderMapper.update(HotelHighVoucherOrder.builder()
+                .id(voucherOrderId)
+                .orderId(orderId)
+                .status(3)
+                .useTime(LocalDateTime.now())
+                .build());
+    }
+
     protected Long createVoucherOrder(HotelHighVoucher voucher, Long userId) {
         Integer count = hotelHighVoucherOrderMapper.countValidOrderByVoucherAndUser(voucher.getId(), userId);
         if (count != null && count >= safeLimit(voucher.getPerLimit())) {
-            throw new OrderBusinessException("不能重复抢购该优惠券");
+            throw new OrderBusinessException("不能重复领取该优惠券");
         }
 
         LocalDateTime beginOfDay = LocalDate.now().atStartOfDay();
         LocalDateTime endOfDay = beginOfDay.plusDays(1);
-        Integer dayCount = hotelHighVoucherOrderMapper.countDailyOrderByVoucherAndUser(voucher.getId(), userId, beginOfDay, endOfDay);
+        Integer dayCount = hotelHighVoucherOrderMapper.countDailyOrderByVoucherAndUser(
+                voucher.getId(), userId, beginOfDay, endOfDay
+        );
         if (dayCount != null && dayCount >= safeLimit(voucher.getDayLimit())) {
-            throw new OrderBusinessException("今日抢购次数已达上限");
+            throw new OrderBusinessException("今日领取次数已达上限");
         }
 
         int updated = hotelHighVoucherMapper.decreaseAvailableStock(voucher.getId());
@@ -180,13 +257,31 @@ public class HotelHighVoucherServiceImpl implements HotelHighVoucherService {
         return voucherOrder.getId();
     }
 
+    private HotelHighVoucherOrderVO buildVoucherOrderVO(HotelHighVoucherOrder voucherOrder, HotelHighVoucher voucher) {
+        return HotelHighVoucherOrderVO.builder()
+                .id(voucherOrder.getId())
+                .voucherId(voucher.getId())
+                .orderId(voucherOrder.getOrderId())
+                .orderNo(voucherOrder.getOrderNo())
+                .status(voucherOrder.getStatus())
+                .voucherName(voucher.getName())
+                .scopeType(voucher.getScopeType())
+                .scopeLabel(voucher.getChannelType())
+                .thresholdAmount(voucher.getPayValue())
+                .discountAmount(voucher.getActualValue())
+                .receiveTime(voucherOrder.getReceiveTime())
+                .useTime(voucherOrder.getUseTime())
+                .expireTime(voucherOrder.getExpireTime())
+                .build();
+    }
+
     private void validateVoucherWindow(HotelHighVoucher voucher) {
         LocalDateTime now = LocalDateTime.now();
         if (voucher.getSeckillBeginTime() != null && voucher.getSeckillBeginTime().isAfter(now)) {
-            throw new OrderBusinessException("秒杀尚未开始");
+            throw new OrderBusinessException("抢券尚未开始");
         }
         if (voucher.getSeckillEndTime() != null && voucher.getSeckillEndTime().isBefore(now)) {
-            throw new OrderBusinessException("秒杀已结束");
+            throw new OrderBusinessException("抢券已结束");
         }
         if (voucher.getBeginTime() != null && voucher.getBeginTime().isAfter(now)) {
             throw new OrderBusinessException("优惠券尚未生效");
@@ -197,6 +292,15 @@ public class HotelHighVoucherServiceImpl implements HotelHighVoucherService {
     }
 
     private void normalizeVoucher(HotelHighVoucher voucher) {
+        if (voucher.getScopeType() == null || voucher.getScopeType().isBlank()) {
+            voucher.setScopeType("ALL_STORE");
+        }
+        if (voucher.getCouponType() == null || voucher.getCouponType().isBlank()) {
+            voucher.setCouponType("FULL_REDUCTION");
+        }
+        if (voucher.getChannelType() == null || voucher.getChannelType().isBlank()) {
+            voucher.setChannelType("UNIVERSAL");
+        }
         if (voucher.getAvailableStock() == null && voucher.getTotalStock() != null) {
             voucher.setAvailableStock(voucher.getTotalStock());
         }
@@ -227,7 +331,10 @@ public class HotelHighVoucherServiceImpl implements HotelHighVoucherService {
 
     private void compensateSeckill(Long voucherId, Long userId) {
         stringRedisTemplate.opsForValue().increment(VoucherRedisConstant.HIGH_VOUCHER_STOCK_KEY + voucherId);
-        stringRedisTemplate.opsForSet().remove(VoucherRedisConstant.HIGH_VOUCHER_ORDER_KEY + voucherId, userId.toString());
+        stringRedisTemplate.opsForSet().remove(
+                VoucherRedisConstant.HIGH_VOUCHER_ORDER_KEY + voucherId,
+                userId.toString()
+        );
     }
 
     private int safeLimit(Integer limit) {

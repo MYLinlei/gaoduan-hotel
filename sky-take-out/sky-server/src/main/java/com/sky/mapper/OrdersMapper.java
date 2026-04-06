@@ -9,6 +9,7 @@ import org.apache.ibatis.annotations.Select;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 @Mapper
 public interface OrdersMapper {
@@ -37,4 +38,31 @@ public interface OrdersMapper {
 
     List<GoodsSalesDTO> getSalesTop10(@Param("begin") LocalDateTime begin,
                                       @Param("end") LocalDateTime end);
+
+    @Select({
+            "<script>",
+            "select",
+            "  u.id as userId,",
+            "  u.phone as phone,",
+            "  u.name as nickname,",
+            "  count(o.id) as completedOrders,",
+            "  ifnull(sum(ifnull(o.actual_pay_amount, o.amount)), 0) as totalAmount,",
+            "  max(o.order_time) as lastOrderTime",
+            "from orders o",
+            "inner join user u on u.id = o.user_id",
+            "where o.status = 5",
+            "<if test='begin != null'>",
+            "  and o.order_time &gt;= #{begin}",
+            "</if>",
+            "<if test='end != null'>",
+            "  and o.order_time &lt;= #{end}",
+            "</if>",
+            "group by u.id, u.phone, u.name",
+            "order by totalAmount desc, completedOrders desc, lastOrderTime desc",
+            "limit #{limit}",
+            "</script>"
+    })
+    List<Map<String, Object>> listUserConsumptionRanking(@Param("begin") LocalDateTime begin,
+                                                         @Param("end") LocalDateTime end,
+                                                         @Param("limit") Integer limit);
 }

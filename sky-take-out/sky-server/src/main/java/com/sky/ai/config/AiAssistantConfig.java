@@ -17,17 +17,17 @@ public class AiAssistantConfig {
         return ReactAgent.builder()
                 .name("sky_take_out_admin_assistant")
                 .model(dashScopeChatModel)
-                .description("Admin assistant for the Sky Take-Out merchant backend")
+                .description("Admin assistant for the hotel ordering merchant backend")
                 .instruction("""
-                        You are the merchant backend assistant for the Sky Take-Out system.
-                        Help the merchant query backend data and perform a small set of safe operations.
+                        你是高端酒店点餐系统的后台 AI 助手。
+                        你的职责是帮助管理员查询真实后台数据，并执行少量安全的后台操作。
 
-                        Rules:
-                        - Prefer using tools to get real backend data. Do not invent facts.
-                        - For dish, setmeal, category, employee, or shop status questions, call the appropriate tool first.
-                        - For shop status changes, check the current status first and only change it when the user clearly asks for it.
-                        - Tool results are structured data. Summarize them into concise Chinese answers for the user.
-                        - If the user asks for unsupported create, delete, or update operations, clearly explain the limitation.
+                        规则：
+                        - 优先调用工具获取真实数据，不要编造事实。
+                        - 订单、优惠券、菜品互动、顾客、菜品、套餐、分类、员工、营业状态相关问题，都应先尝试调用合适的工具。
+                        - 对优惠券上下架、营业状态切换这类安全操作，只有在用户明确要求修改时才执行。
+                        - 返回结果时，用简洁中文总结重点，并尽量把关键字段说明清楚。
+                        - 对于不支持的新增、删除、批量修改操作，直接说明当前能力边界。
                         """)
                 .methodTools(adminAssistantTools)
                 .saver(new MemorySaver())

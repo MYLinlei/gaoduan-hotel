@@ -31,4 +31,44 @@ public interface HotelHighVoucherMapper {
                                        @Param("channelType") String channelType);
 
     int decreaseAvailableStock(@Param("id") Long id);
+
+    @Select({
+            "<script>",
+            "select count(*) from hotel_high_voucher",
+            "<where>",
+            "  <if test='name != null and name != \"\"'>",
+            "    and name like concat('%', #{name}, '%')",
+            "  </if>",
+            "  <if test='channelType != null and channelType != \"\"'>",
+            "    and channel_type = #{channelType}",
+            "  </if>",
+            "  <if test='status != null'>",
+            "    and status = #{status}",
+            "  </if>",
+            "</where>",
+            "</script>"
+    })
+    Long countByCondition(@Param("name") String name,
+                          @Param("channelType") String channelType,
+                          @Param("status") Integer status);
+
+    @Select({
+            "<script>",
+            "select ifnull(sum(available_stock), 0) from hotel_high_voucher",
+            "<where>",
+            "  <if test='name != null and name != \"\"'>",
+            "    and name like concat('%', #{name}, '%')",
+            "  </if>",
+            "  <if test='channelType != null and channelType != \"\"'>",
+            "    and channel_type = #{channelType}",
+            "  </if>",
+            "  <if test='status != null'>",
+            "    and status = #{status}",
+            "  </if>",
+            "</where>",
+            "</script>"
+    })
+    Integer sumAvailableStockByCondition(@Param("name") String name,
+                                         @Param("channelType") String channelType,
+                                         @Param("status") Integer status);
 }

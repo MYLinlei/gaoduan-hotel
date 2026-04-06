@@ -17,12 +17,15 @@ import com.sky.mapper.OrderDetailMapper;
 import com.sky.mapper.OrdersMapper;
 import com.sky.mapper.ShoppingCartMapper;
 import com.sky.result.PageResult;
+import com.sky.service.HotelHighVoucherService;
 import com.sky.service.UserOrderService;
+import com.sky.vo.HotelHighVoucherOrderVO;
 import com.sky.vo.OrderPaymentVO;
 import com.sky.vo.OrderSubmitVO;
 import com.sky.vo.OrderVO;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,6 +37,8 @@ import java.util.StringJoiner;
 
 @Service
 public class UserOrderServiceImpl implements UserOrderService {
+
+    private static final String SHOP_STATUS_KEY = "SHOP_STATUS";
 
     @Autowired
     private OrdersMapper ordersMapper;
@@ -47,9 +52,16 @@ public class UserOrderServiceImpl implements UserOrderService {
     @Autowired
     private AddressBookMapper addressBookMapper;
 
+    @Autowired
+    private HotelHighVoucherService hotelHighVoucherService;
+
+    @Autowired
+    private RedisTemplate<String, Object> redisTemplate;
+
     @Override
     @Transactional
     public OrderSubmitVO submitOrder(OrdersSubmitDTO ordersSubmitDTO) {
+        ensureShopOpen();
         Long userId = BaseContext.getCurrentId();
         Integer orderType = resolveOrderType(ordersSubmitDTO.getOrderType());
         AddressBook addressBook = null;
@@ -59,7 +71,7 @@ public class UserOrderServiceImpl implements UserOrderService {
                 throw new AddressBookBusinessException(MessageConstant.ADDRESS_BOOK_IS_NULL);
             }
         } else if (ordersSubmitDTO.getTableNo() == null || ordersSubmitDTO.getTableNo().trim().isEmpty()) {
-            throw new OrderBusinessException("堂食订单必须选择桌号");
+            throw new OrderBusinessException("堂食订单必须填写桌号");
         }
 
         ShoppingCart cartQuery = new ShoppingCart();
@@ -71,29 +83,36 @@ public class UserOrderServiceImpl implements UserOrderService {
 
         int packAmount = ordersSubmitDTO.getPackAmount() == null ? 0 : ordersSubmitDTO.getPackAmount();
         int tablewareNumber = ordersSubmitDTO.getTablewareNumber() == null ? 0 : ordersSubmitDTO.getTablewareNumber();
-        BigDecimal orderAmount = calculateOrderAmount(shoppingCartList).add(BigDecimal.valueOf(packAmount));
-        LocalDateTime now = LocalDateTime.now();
+        Integer deliveryStatus = resolveDeliveryStatus(orderType, ordersSubmitDTO.getDeliveryStatus());
+        BigDecimal originalAmount = calculateOrderAmount(shoppingCartList).add(BigDecimal.valueOf(packAmount));
+        HotelHighVoucherOrderVO coupon = hotelHighVoucherService.getOwnedCoupon(ordersSubmitDTO.getCouponId(), userId, originalAmount);
+        BigDecimal couponAmount = coupon == null ? BigDecimal.ZERO : coupon.getDiscountAmount();
+        BigDecimal actualPayAmount = originalAmount.subtract(couponAmount);
+        if (actualPayAmount.compareTo(BigDecimal.ZERO) < 0) {
+            actualPayAmount = BigDecimal.ZERO;
+        }
 
         Orders order = Orders.builder()
                 .number(generateOrderNumber(userId))
                 .status(Orders.PENDING_PAYMENT)
                 .userId(userId)
                 .addressBookId(addressBook == null ? null : addressBook.getId())
-                .orderTime(now)
+                .orderTime(LocalDateTime.now())
                 .payMethod(ordersSubmitDTO.getPayMethod())
                 .payStatus(Orders.UN_PAID)
                 .orderType(orderType)
                 .tableNo(normalizeTableNo(ordersSubmitDTO.getTableNo()))
-                .couponAmount(BigDecimal.ZERO)
-                .actualPayAmount(orderAmount)
-                .amount(orderAmount)
+                .couponId(coupon == null ? null : coupon.getId())
+                .couponAmount(couponAmount)
+                .actualPayAmount(actualPayAmount)
+                .amount(originalAmount)
                 .remark(ordersSubmitDTO.getRemark())
                 .userName(addressBook == null ? "堂食顾客" : addressBook.getConsignee())
                 .phone(addressBook == null ? null : addressBook.getPhone())
                 .address(addressBook == null ? null : buildFullAddress(addressBook))
                 .consignee(addressBook == null ? null : addressBook.getConsignee())
                 .estimatedDeliveryTime(Orders.DELIVERY_ORDER.equals(orderType) ? ordersSubmitDTO.getEstimatedDeliveryTime() : null)
-                .deliveryStatus(Orders.DELIVERY_ORDER.equals(orderType) ? ordersSubmitDTO.getDeliveryStatus() : null)
+                .deliveryStatus(deliveryStatus)
                 .packAmount(packAmount)
                 .tablewareNumber(tablewareNumber)
                 .tablewareStatus(ordersSubmitDTO.getTablewareStatus())
@@ -116,11 +135,14 @@ public class UserOrderServiceImpl implements UserOrderService {
         }
         orderDetailMapper.insertBatch(orderDetails);
         shoppingCartMapper.deleteByUserId(userId);
+        if (coupon != null) {
+            hotelHighVoucherService.useCoupon(coupon.getId(), order.getId(), userId);
+        }
 
         return OrderSubmitVO.builder()
                 .id(order.getId())
                 .orderNumber(order.getNumber())
-                .orderAmount(orderAmount)
+                .orderAmount(actualPayAmount)
                 .orderTime(order.getOrderTime())
                 .build();
     }
@@ -254,6 +276,13 @@ public class UserOrderServiceImpl implements UserOrderService {
                 : Orders.TO_BE_CONFIRMED;
     }
 
+    private Integer resolveDeliveryStatus(Integer orderType, Integer deliveryStatus) {
+        if (deliveryStatus != null) {
+            return deliveryStatus;
+        }
+        return Orders.DINE_IN_ORDER.equals(orderType) ? 0 : 1;
+    }
+
     private String normalizeTableNo(String tableNo) {
         return tableNo == null ? null : tableNo.trim();
     }
@@ -291,5 +320,12 @@ public class UserOrderServiceImpl implements UserOrderService {
             joiner.add(orderDetail.getName() + "*" + orderDetail.getNumber());
         }
         return joiner.toString();
+    }
+
+    private void ensureShopOpen() {
+        Object rawStatus = redisTemplate.opsForValue().get(SHOP_STATUS_KEY);
+        if (rawStatus != null && "0".equals(String.valueOf(rawStatus))) {
+            throw new OrderBusinessException("当前店铺处于打烊中，暂不支持下单");
+        }
     }
 }

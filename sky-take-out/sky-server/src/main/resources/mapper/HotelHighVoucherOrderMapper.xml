@@ -12,4 +12,46 @@
          #{sourceType}, now(), now())
     </insert>
 
+    <select id="listByUserId" resultType="com.sky.vo.HotelHighVoucherOrderVO">
+        select hvo.id,
+               hvo.voucher_id,
+               hvo.order_id,
+               hvo.order_no,
+               hvo.status,
+               hv.name as voucher_name,
+               hv.scope_type,
+               hv.channel_type as scope_label,
+               hv.pay_value as threshold_amount,
+               hv.actual_value as discount_amount,
+               hvo.receive_time,
+               hvo.use_time,
+               hvo.expire_time
+        from hotel_high_voucher_order hvo
+                 inner join hotel_high_voucher hv on hv.id = hvo.voucher_id
+        where hvo.user_id = #{userId}
+        <if test="status != null">
+            and hvo.status = #{status}
+        </if>
+        order by hvo.receive_time desc
+    </select>
+
+    <select id="getById" resultType="com.sky.entity.HotelHighVoucherOrder">
+        select *
+        from hotel_high_voucher_order
+        where id = #{id}
+        limit 1
+    </select>
+
+    <update id="update" parameterType="com.sky.entity.HotelHighVoucherOrder">
+        update hotel_high_voucher_order
+        <set>
+            <if test="orderId != null">order_id = #{orderId},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="lockTime != null">lock_time = #{lockTime},</if>
+            <if test="useTime != null">use_time = #{useTime},</if>
+            <if test="cancelTime != null">cancel_time = #{cancelTime},</if>
+        </set>
+        where id = #{id}
+    </update>
+
 </mapper>
