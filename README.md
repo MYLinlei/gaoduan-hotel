@@ -1,5 +1,16 @@
 # 高端酒店品牌后端改造说明书
 
+> 当前筑家优选轻量化改造在 `feature/zhujia-lite` 分支进行；本文中的旧酒店业务说明将在后续领域改造阶段逐步替换。
+
+## 本地安全配置
+
+仓库不再保存数据库密码、JWT 密钥、微信密钥或 DashScope API Key。启动后端前任选一种方式提供配置：
+
+1. 复制 `sky-take-out/sky-server/src/main/resources/application-local.yml.example` 为同目录下的 `application-local.yml`，填写本机配置，并将运行 Profile 设置为 `local`。
+2. 参考根目录 `.env.example`，在 IDEA Run Configuration 的 Environment variables 中配置变量，使用默认 `dev` Profile。
+
+生产环境必须使用 `prod` Profile，并通过部署环境注入所有必填变量。`.env` 和 `application-local.yml` 已加入 Git 忽略列表，禁止提交真实密钥。
+
 ## 1. 项目定位
 
 本项目最终目标不是同时维护 `sky-take-out` 和 `hm-dianping` 两个独立项目，而是：
@@ -541,4 +552,3 @@ Black-Commentsheimadianping\hm-dianping 仅作为参考代码仓库，不作为�
 - 用户互动与内容种草
 
 这个项目在简历、答辩、面试、毕设表达上，都比“苍穹外卖 + 黑马点评融合”更强。
-

@@ -1,15 +1,15 @@
 sky:
-  upload-dir: ${UPLOAD_DIR:./uploads}
-  file-host: ${FILE_HOST:http://localhost:8081}
+  upload-dir: ${UPLOAD_DIR}
+  file-host: ${FILE_HOST}
   datasource:
     driver-class-name: ${DB_DRIVER:com.mysql.cj.jdbc.Driver}
-    host: ${DB_HOST:localhost}
+    host: ${DB_HOST}
     port: ${DB_PORT:3306}
-    database: ${DB_NAME:sky_take_out}
-    username: ${DB_USERNAME:root}
-    password: ${DB_PASSWORD:}
+    database: ${DB_NAME}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
   redis:
-    host: ${REDIS_HOST:localhost}
+    host: ${REDIS_HOST}
     port: ${REDIS_PORT:6379}
     database: ${REDIS_DATABASE:0}
     password: ${REDIS_PASSWORD:}
