@@ -1,4 +1,11 @@
+spring:
+  ai:
+    dashscope:
+      api-key: ${AI_DASHSCOPE_API_KEY}
+
 sky:
+  ai:
+    remote-enabled: true
   upload-dir: ${UPLOAD_DIR}
   file-host: ${FILE_HOST}
   datasource:

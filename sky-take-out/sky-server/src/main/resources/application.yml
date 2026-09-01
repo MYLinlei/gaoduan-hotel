@@ -6,7 +6,8 @@ spring:
     active: ${SPRING_PROFILES_ACTIVE:dev}
   ai:
     dashscope:
-      api-key: ${AI_DASHSCOPE_API_KEY:}
+      # The SDK requires a non-empty value even when remote AI is disabled.
+      api-key: ${AI_DASHSCOPE_API_KEY:local-disabled-key}
       chat:
         options:
           model: qwen-plus
@@ -41,6 +42,8 @@ logging:
         controller: info
 
 sky:
+  ai:
+    remote-enabled: ${AI_REMOTE_ENABLED:false}
   jwt:
     admin-secret-key: ${JWT_ADMIN_SECRET}
     admin-ttl: ${JWT_ADMIN_TTL:7200000}

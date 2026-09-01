@@ -28,10 +28,10 @@ public class JwtTokenAdminInterceptor implements HandlerInterceptor {
 
         String token = request.getHeader(jwtProperties.getAdminTokenName());
         try {
-            log.info("jwt check: {}", token);
             Claims claims = JwtUtil.parseJWT(jwtProperties.getAdminSecretKey(), token);
             Long empId = Long.valueOf(claims.get(JwtClaimsConstant.EMP_ID).toString());
             BaseContext.setCurrentId(empId);
+            log.debug("admin token check success, employeeId={}", empId);
             return true;
         } catch (Exception ex) {
             response.setStatus(401);

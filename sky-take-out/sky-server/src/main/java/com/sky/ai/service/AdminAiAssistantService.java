@@ -9,6 +9,7 @@ import com.sky.ai.dto.AiChatResponse;
 import com.sky.ai.tools.AdminAssistantTools;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.messages.AssistantMessage;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -38,10 +39,14 @@ public class AdminAiAssistantService {
 
     private final ReactAgent adminAssistantAgent;
     private final AdminAssistantTools adminAssistantTools;
+    private final boolean remoteEnabled;
 
-    public AdminAiAssistantService(ReactAgent adminAssistantAgent, AdminAssistantTools adminAssistantTools) {
+    public AdminAiAssistantService(ReactAgent adminAssistantAgent,
+                                   AdminAssistantTools adminAssistantTools,
+                                   @Value("${sky.ai.remote-enabled:false}") boolean remoteEnabled) {
         this.adminAssistantAgent = adminAssistantAgent;
         this.adminAssistantTools = adminAssistantTools;
+        this.remoteEnabled = remoteEnabled;
     }
 
     public AiChatResponse chat(String message, String threadId) {
@@ -70,6 +75,9 @@ public class AdminAiAssistantService {
     }
 
     private String tryRemoteReply(String message, String threadId) {
+        if (!remoteEnabled) {
+            return null;
+        }
         RunnableConfig config = RunnableConfig.builder()
                 .threadId(threadId)
                 .build();

@@ -36,7 +36,7 @@ public class EmployeeController {
     @PostMapping("/login")
     @ApiOperation(value = "鍛樺伐鐧诲綍")
     public Result<EmployeeLoginVO> login(@RequestBody EmployeeLoginDTO employeeLoginDTO) {
-        log.info("鍛樺伐鐧诲綍: {}", employeeLoginDTO);
+        log.info("admin login requested, username={}", employeeLoginDTO.getUsername());
 
         Employee employee = employeeService.login(employeeLoginDTO);
         Map<String, Object> claims = new HashMap<>();

@@ -3,9 +3,11 @@
 spring:
   ai:
     dashscope:
-      api-key: replace-with-your-dashscope-api-key-or-leave-empty
+      api-key: local-disabled-key
 
 sky:
+  ai:
+    remote-enabled: false
   upload-dir: ./uploads
   file-host: http://localhost:8081
   datasource:

@@ -33,7 +33,7 @@ public class UserController {
     @PostMapping("/sendCode")
     @ApiOperation("发送短信验证码")
     public Result<String> sendCode(@RequestParam String phone) {
-        log.info("send login code, phone={}", phone);
+        log.info("send login code requested");
         userService.sendCode(phone);
         return Result.success("验证码已发送");
     }
@@ -41,7 +41,7 @@ public class UserController {
     @PostMapping("/login")
     @ApiOperation("手机号验证码登录")
     public Result<UserLoginVO> login(@RequestBody UserLoginDTO userLoginDTO) {
-        log.info("sms login, phone={}", userLoginDTO.getPhone());
+        log.info("sms login requested");
         return Result.success(userService.login(userLoginDTO));
     }
 

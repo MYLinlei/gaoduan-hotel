@@ -46,7 +46,7 @@ public class UserServiceImpl implements UserService {
                 RedisLoginConstant.LOGIN_CODE_TTL_MINUTES,
                 TimeUnit.MINUTES
         );
-        log.info("sms login code generated, phone={}, code={}", safePhone, code);
+        log.info("sms login code generated and stored with a short TTL");
     }
 
     @Override

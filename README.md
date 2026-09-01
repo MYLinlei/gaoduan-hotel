@@ -11,6 +11,45 @@
 
 生产环境必须使用 `prod` Profile，并通过部署环境注入所有必填变量。`.env` 和 `application-local.yml` 已加入 Git 忽略列表，禁止提交真实密钥。
 
+### 从零初始化数据库
+
+完整 MySQL 8 基线位于：
+
+```text
+sky-take-out/docs/sql/00-full-baseline.sql
+```
+
+使用本项目约定的 Docker 容器导入：
+
+```bash
+docker exec -i mysql8 sh -c 'mysql -uroot -p"$MYSQL_ROOT_PASSWORD"' \
+  < sky-take-out/docs/sql/00-full-baseline.sql
+```
+
+脚本会创建 `sky_take_out` 数据库、19 张现有基座业务表和最小演示数据。初始化管理员账号为 `admin / 123456`，仅用于本地开发，首次正式部署必须修改密码。
+
+### 本地启动
+
+后端使用 JDK 17，并激活 `local` Profile：
+
+```bash
+cd sky-take-out
+mvn clean package -Dmaven.test.skip=true
+java -jar sky-server/target/sky-server-1.0-SNAPSHOT.jar --spring.profiles.active=local
+```
+
+用户端开发服务器：
+
+```bash
+cd hotel-guest-web
+npm ci
+npm run dev
+```
+
+访问 `http://localhost:5173/guest/`。Vite 会将 `/user`、`/admin` 和 `/uploads` 请求代理到 `http://localhost:8081`。构建后的集成页面可通过 `http://localhost:8081/guest/` 访问。
+
+远程 AI 默认关闭，系统使用已有本地运营助手。需要启用 DashScope 时，同时配置 `AI_DASHSCOPE_API_KEY` 和 `AI_REMOTE_ENABLED=true`。
+
 ## 1. 项目定位
 
 本项目最终目标不是同时维护 `sky-take-out` 和 `hm-dianping` 两个独立项目，而是：
