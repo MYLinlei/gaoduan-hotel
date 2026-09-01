@@ -178,6 +178,19 @@
     </dependencies>
 
     <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+            </resource>
+            <!--
+                The repository only contains the compiled admin UI. Package it with
+                Spring Boot so local development and deployment no longer require Nginx.
+            -->
+            <resource>
+                <directory>${project.basedir}/../nginx-1.20.2/html/sky</directory>
+                <targetPath>admin-ui</targetPath>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>

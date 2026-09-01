@@ -30,13 +30,25 @@ docker exec -i mysql8 sh -c 'mysql -uroot -p"$MYSQL_ROOT_PASSWORD"' \
 
 ### 本地启动
 
-后端使用 JDK 17，并激活 `local` Profile：
+后端使用 JDK 17，并激活 `local` Profile。在 IDEA 中重新加载 Maven 项目后，运行
+`sky-server` 模块中的 `com.sky.SkyApplication`，将 Active profiles 设置为 `local`。
+也可以使用命令行构建：
 
 ```bash
 cd sky-take-out
-mvn clean package -Dmaven.test.skip=true
+mvn clean package
 java -jar sky-server/target/sky-server-1.0-SNAPSHOT.jar --spring.profiles.active=local
 ```
+
+后台管理端已由 Spring Boot 直接托管，不需要启动 Nginx。后端启动后可访问：
+
+```text
+后台管理端：http://localhost:8081/
+用户端集成页：http://localhost:8081/guest/
+接口文档：http://localhost:8081/doc.html
+```
+
+后台页面原有的 `/api/**` 请求会在应用内部转发到 `/admin/**`，并继续使用原有管理端 JWT 校验。初始化管理员账号为 `admin / 123456`。
 
 用户端开发服务器：
 
@@ -46,7 +58,7 @@ npm ci
 npm run dev
 ```
 
-访问 `http://localhost:5173/guest/`。Vite 会将 `/user`、`/admin` 和 `/uploads` 请求代理到 `http://localhost:8081`。构建后的集成页面可通过 `http://localhost:8081/guest/` 访问。
+前端开发期间访问 `http://localhost:5173/guest/`。Vite 会将 `/user`、`/admin` 和 `/uploads` 请求代理到 `http://localhost:8081`；只做整体演示时无需启动 Vite。
 
 远程 AI 默认关闭，系统使用已有本地运营助手。需要启用 DashScope 时，同时配置 `AI_DASHSCOPE_API_KEY` 和 `AI_REMOTE_ENABLED=true`。
 

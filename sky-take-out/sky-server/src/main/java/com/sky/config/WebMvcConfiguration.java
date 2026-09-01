@@ -93,5 +93,8 @@ public class WebMvcConfiguration extends WebMvcConfigurationSupport {
 
         registry.addResourceHandler("/guest/**")
                 .addResourceLocations("classpath:/guest/");
+
+        registry.addResourceHandler("/admin-ui/**")
+                .addResourceLocations("classpath:/admin-ui/");
     }
 }
