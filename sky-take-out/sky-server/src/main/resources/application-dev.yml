@@ -1,3 +1,9 @@
+spring:
+  config:
+    # IDEA's default run action uses the dev profile. If a Git-ignored local
+    # configuration exists, load it automatically as the machine-local override.
+    import: optional:classpath:application-local.yml
+
 sky:
   upload-dir: ${UPLOAD_DIR:./uploads}
   file-host: ${FILE_HOST:http://localhost:8081}

@@ -6,7 +6,7 @@
 
 仓库不再保存数据库密码、JWT 密钥、微信密钥或 DashScope API Key。启动后端前任选一种方式提供配置：
 
-1. 复制 `sky-take-out/sky-server/src/main/resources/application-local.yml.example` 为同目录下的 `application-local.yml`，填写本机配置，并将运行 Profile 设置为 `local`。
+1. 复制 `sky-take-out/sky-server/src/main/resources/application-local.yml.example` 为同目录下的 `application-local.yml` 并填写本机配置。默认 `dev` Profile 会自动导入这个 Git 忽略文件，也可显式使用 `local` Profile。
 2. 参考根目录 `.env.example`，在 IDEA Run Configuration 的 Environment variables 中配置变量，使用默认 `dev` Profile。
 
 生产环境必须使用 `prod` Profile，并通过部署环境注入所有必填变量。`.env` 和 `application-local.yml` 已加入 Git 忽略列表，禁止提交真实密钥。
@@ -30,8 +30,8 @@ docker exec -i mysql8 sh -c 'mysql -uroot -p"$MYSQL_ROOT_PASSWORD"' \
 
 ### 本地启动
 
-后端使用 JDK 17，并激活 `local` Profile。在 IDEA 中重新加载 Maven 项目后，运行
-`sky-server` 模块中的 `com.sky.SkyApplication`，将 Active profiles 设置为 `local`。
+后端使用 JDK 17。在 IDEA 中重新加载 Maven 项目后，直接运行
+`sky-server` 模块中的 `com.sky.SkyApplication` 即可；默认 `dev` Profile 会自动读取已建立的 `application-local.yml`。
 也可以使用命令行构建：
 
 ```bash

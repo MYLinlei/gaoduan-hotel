@@ -1,4 +1,5 @@
-# Copy this file to application-local.yml and activate the local profile.
+# Copy this file to application-local.yml. The default dev profile imports it
+# automatically, and it can also be activated explicitly as the local profile.
 # application-local.yml is ignored by Git and may contain machine-local values.
 spring:
   ai:
