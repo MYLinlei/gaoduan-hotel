@@ -1,0 +1,940 @@
+{
+  "tool": "comp-spec",
+  "version": 1,
+  "createdAt": "2026-09-02T04:20:55.736Z",
+  "comp": ".impeccable/mocks/homepage-comp-b.png",
+  "warnings": [
+    "region hero-space: \"bleed\": true set in the regions file (the clipped-artwork refusal is overridden: the page crops it there)",
+    "region bath-product: \"bleed\": true set in the regions file (the clipped-artwork refusal is overridden: the page crops it there)",
+    "region floor-product: \"bleed\": true set in the regions file (the clipped-artwork refusal is overridden: the page crops it there)",
+    "region cabinet-product: \"bleed\": true set in the regions file (the clipped-artwork refusal is overridden: the page crops it there)",
+    "region category-index: \"container\": true set in the regions file (the region-size refusal is overridden: one undivided element)"
+  ],
+  "uncoveredInkCells": [],
+  "compSize": {
+    "width": 1505,
+    "height": 1045
+  },
+  "aspect": 1.4402,
+  "orientation": "landscape",
+  "palette": [
+    {
+      "hex": "#f7f6f5",
+      "coverage": 0.6876
+    },
+    {
+      "hex": "#c0bab2",
+      "coverage": 0.0996
+    },
+    {
+      "hex": "#93897f",
+      "coverage": 0.091
+    },
+    {
+      "hex": "#665a50",
+      "coverage": 0.0677
+    },
+    {
+      "hex": "#201b1a",
+      "coverage": 0.0541
+    }
+  ],
+  "bands": [
+    {
+      "y": 0.0112,
+      "strength": 0.2185
+    },
+    {
+      "y": 0.0674,
+      "strength": 0.2433
+    },
+    {
+      "y": 0.1124,
+      "strength": 0.202
+    },
+    {
+      "y": 0.1461,
+      "strength": 0.2707
+    },
+    {
+      "y": 0.1798,
+      "strength": 1
+    },
+    {
+      "y": 0.4494,
+      "strength": 0.2075
+    },
+    {
+      "y": 0.4831,
+      "strength": 0.5645
+    },
+    {
+      "y": 0.5056,
+      "strength": 0.2139
+    },
+    {
+      "y": 0.5393,
+      "strength": 0.8308
+    },
+    {
+      "y": 0.5955,
+      "strength": 0.3676
+    },
+    {
+      "y": 0.6517,
+      "strength": 0.9324
+    },
+    {
+      "y": 0.6854,
+      "strength": 0.2006
+    },
+    {
+      "y": 0.8202,
+      "strength": 0.6718
+    },
+    {
+      "y": 0.8989,
+      "strength": 0.3248
+    },
+    {
+      "y": 0.9213,
+      "strength": 0.2262
+    },
+    {
+      "y": 0.9663,
+      "strength": 0.257
+    },
+    {
+      "y": 0.9888,
+      "strength": 0.2627
+    }
+  ],
+  "regions": [
+    {
+      "id": "service-strip",
+      "kind": "chrome",
+      "note": "slim warm-gray service strip",
+      "grid": "A0:J0",
+      "box": {
+        "x": 0,
+        "y": 0,
+        "w": 1,
+        "h": 0.1
+      },
+      "px": {
+        "x": 0,
+        "y": 0,
+        "w": 1505,
+        "h": 105
+      },
+      "aspect": 14.3333,
+      "palette": [
+        {
+          "hex": "#f8f8f8",
+          "coverage": 0.9451
+        },
+        {
+          "hex": "#989898",
+          "coverage": 0.0161
+        },
+        {
+          "hex": "#363635",
+          "coverage": 0.015
+        },
+        {
+          "hex": "#c0c0c0",
+          "coverage": 0.0142
+        },
+        {
+          "hex": "#6b6b6b",
+          "coverage": 0.0095
+        }
+      ],
+      "detail": {
+        "energy": 22.5231
+      },
+      "medium": "semantic",
+      "plate": null,
+      "text": null
+    },
+    {
+      "id": "global-header",
+      "kind": "chrome",
+      "note": "white brand, search and commerce navigation",
+      "grid": "A0:J1",
+      "box": {
+        "x": 0,
+        "y": 0,
+        "w": 1,
+        "h": 0.2
+      },
+      "px": {
+        "x": 0,
+        "y": 0,
+        "w": 1505,
+        "h": 209
+      },
+      "aspect": 7.201,
+      "palette": [
+        {
+          "hex": "#f8f8f8",
+          "coverage": 0.8978
+        },
+        {
+          "hex": "#81766a",
+          "coverage": 0.0319
+        },
+        {
+          "hex": "#4f4944",
+          "coverage": 0.0282
+        },
+        {
+          "hex": "#9b9895",
+          "coverage": 0.025
+        },
+        {
+          "hex": "#c8c5c2",
+          "coverage": 0.0171
+        }
+      ],
+      "detail": {
+        "energy": 25.9639
+      },
+      "medium": "semantic",
+      "plate": null,
+      "text": null
+    },
+    {
+      "id": "brand-mark",
+      "kind": "text",
+      "note": "serif 筑家优选 wordmark with small descriptor",
+      "grid": "A0:B1",
+      "coverBox": {
+        "x": 0,
+        "y": 0,
+        "w": 0.2,
+        "h": 0.2
+      },
+      "box": {
+        "x": 0.0199,
+        "y": 0.0632,
+        "w": 0.1037,
+        "h": 0.0632
+      },
+      "px": {
+        "x": 30,
+        "y": 66,
+        "w": 156,
+        "h": 66
+      },
+      "aspect": 2.3636,
+      "palette": [
+        {
+          "hex": "#f7f7f7",
+          "coverage": 0.7277
+        },
+        {
+          "hex": "#c1c1c1",
+          "coverage": 0.0867
+        },
+        {
+          "hex": "#121111",
+          "coverage": 0.0788
+        },
+        {
+          "hex": "#7f7d7d",
+          "coverage": 0.0718
+        },
+        {
+          "hex": "#4c4b4b",
+          "coverage": 0.035
+        }
+      ],
+      "detail": {
+        "energy": 46.0435
+      },
+      "medium": "semantic",
+      "plate": null,
+      "text": null,
+      "type": {
+        "comp": {
+          "lines": 1,
+          "glyphs": 5,
+          "capHeightPx": 31.1,
+          "inkIsDark": true,
+          "allCaps": false,
+          "advance": 0.9644,
+          "advTall": 0.9644,
+          "advX": null,
+          "gap": 0.1125,
+          "xRatio": 0.6895,
+          "stemW": 0.1086,
+          "contrast": 1.2699,
+          "serif": 1.6721,
+          "densTall": 0.3774,
+          "densX": null,
+          "weight": 0.3774
+        },
+        "widthClass": "wide",
+        "weightClass": "regular"
+      }
+    },
+    {
+      "id": "global-search",
+      "kind": "control",
+      "note": "wide bordered product search",
+      "grid": "C0:F1",
+      "coverBox": {
+        "x": 0.2,
+        "y": 0,
+        "w": 0.4,
+        "h": 0.2
+      },
+      "box": {
+        "x": 0.2,
+        "y": 0.1722,
+        "w": 0.311,
+        "h": 0.0278
+      },
+      "px": {
+        "x": 301,
+        "y": 180,
+        "w": 468,
+        "h": 29
+      },
+      "aspect": 16.1379,
+      "palette": [
+        {
+          "hex": "#8e7f6f",
+          "coverage": 0.4673
+        },
+        {
+          "hex": "#f8f8f8",
+          "coverage": 0.3
+        },
+        {
+          "hex": "#3c2819",
+          "coverage": 0.1263
+        },
+        {
+          "hex": "#665b4e",
+          "coverage": 0.0929
+        },
+        {
+          "hex": "#cfc6c0",
+          "coverage": 0.0135
+        }
+      ],
+      "detail": {
+        "energy": 25.0945
+      },
+      "medium": "semantic",
+      "plate": null,
+      "text": null
+    },
+    {
+      "id": "hero-space",
+      "kind": "plate",
+      "note": "wide contemporary living room material scene",
+      "grid": "A2:F5",
+      "bleed": true,
+      "box": {
+        "x": 0,
+        "y": 0.2,
+        "w": 0.6,
+        "h": 0.4
+      },
+      "px": {
+        "x": 0,
+        "y": 209,
+        "w": 903,
+        "h": 418
+      },
+      "aspect": 2.1603,
+      "palette": [
+        {
+          "hex": "#b0a99f",
+          "coverage": 0.2917
+        },
+        {
+          "hex": "#685b4e",
+          "coverage": 0.1925
+        },
+        {
+          "hex": "#8d8174",
+          "coverage": 0.1861
+        },
+        {
+          "hex": "#e2e0df",
+          "coverage": 0.1704
+        },
+        {
+          "hex": "#211b1a",
+          "coverage": 0.1593
+        }
+      ],
+      "detail": {
+        "energy": 24.0383
+      },
+      "medium": "raster",
+      "plate": "assets/plates/hero-space.png",
+      "text": null
+    },
+    {
+      "id": "hero-heading",
+      "kind": "text",
+      "note": "large two-line serif heading",
+      "grid": "G2:J3",
+      "coverBox": {
+        "x": 0.6,
+        "y": 0.2,
+        "w": 0.4,
+        "h": 0.2
+      },
+      "box": {
+        "x": 0.6638,
+        "y": 0.223,
+        "w": 0.2193,
+        "h": 0.1206
+      },
+      "px": {
+        "x": 999,
+        "y": 233,
+        "w": 330,
+        "h": 126
+      },
+      "aspect": 2.619,
+      "palette": [
+        {
+          "hex": "#f7f6f5",
+          "coverage": 0.7811
+        },
+        {
+          "hex": "#252423",
+          "coverage": 0.1091
+        },
+        {
+          "hex": "#60605f",
+          "coverage": 0.0443
+        },
+        {
+          "hex": "#c9c9c7",
+          "coverage": 0.0358
+        },
+        {
+          "hex": "#9b9a99",
+          "coverage": 0.0297
+        }
+      ],
+      "detail": {
+        "energy": 59.8887
+      },
+      "medium": "semantic",
+      "plate": null,
+      "text": null,
+      "type": {
+        "comp": {
+          "lines": 2,
+          "glyphs": 15,
+          "capHeightPx": 40.7,
+          "inkIsDark": true,
+          "allCaps": false,
+          "advance": 0.6404,
+          "advTall": 0.7657,
+          "advX": null,
+          "gap": 0.1898,
+          "xRatio": 0.6535,
+          "stemW": 0.1077,
+          "contrast": 2.6975,
+          "serif": 3.0287,
+          "densTall": 0.3415,
+          "densX": null,
+          "weight": 0.3415
+        },
+        "widthClass": "normal",
+        "weightClass": "regular",
+        "chosen": {
+          "family": "Kalnia Glaze",
+          "weight": 400,
+          "fontSizePx": 58,
+          "source": "catalog",
+          "estimatedSize": true,
+          "stamp": "545d94423c9b"
+        }
+      }
+    },
+    {
+      "id": "hero-copy",
+      "kind": "text",
+      "note": "short explanatory body copy",
+      "grid": "G3:J4",
+      "coverBox": {
+        "x": 0.6,
+        "y": 0.3,
+        "w": 0.4,
+        "h": 0.2
+      },
+      "box": {
+        "x": 0.6638,
+        "y": 0.4727,
+        "w": 0.2791,
+        "h": 0.0278
+      },
+      "px": {
+        "x": 999,
+        "y": 494,
+        "w": 420,
+        "h": 29
+      },
+      "aspect": 14.4828,
+      "palette": [
+        {
+          "hex": "#985538",
+          "coverage": 0.5786
+        },
+        {
+          "hex": "#f8f8f8",
+          "coverage": 0.4214
+        }
+      ],
+      "detail": {
+        "energy": 21.1883
+      },
+      "medium": "semantic",
+      "plate": null,
+      "text": null,
+      "type": {
+        "comp": null,
+        "measuredAt": "2026-09-02T04:20:56.025Z",
+        "note": "no separable lettering in the crop; size by the region box"
+      }
+    },
+    {
+      "id": "hero-search",
+      "kind": "control",
+      "note": "secondary material search",
+      "grid": "G4:J4",
+      "coverBox": {
+        "x": 0.6,
+        "y": 0.4,
+        "w": 0.4,
+        "h": 0.1
+      },
+      "box": {
+        "x": 0.6638,
+        "y": 0.4746,
+        "w": 0.2791,
+        "h": 0.0258
+      },
+      "px": {
+        "x": 999,
+        "y": 496,
+        "w": 420,
+        "h": 27
+      },
+      "aspect": 15.5556,
+      "palette": [
+        {
+          "hex": "#985638",
+          "coverage": 0.6429
+        },
+        {
+          "hex": "#f7f4f3",
+          "coverage": 0.3571
+        }
+      ],
+      "detail": {
+        "energy": 21.567
+      },
+      "medium": "semantic",
+      "plate": null,
+      "text": null
+    },
+    {
+      "id": "hero-action",
+      "kind": "control",
+      "note": "full-width terracotta action",
+      "grid": "G5:J5",
+      "coverBox": {
+        "x": 0.6,
+        "y": 0.5,
+        "w": 0.4,
+        "h": 0.1
+      },
+      "box": {
+        "x": 0.6638,
+        "y": 0.5005,
+        "w": 0.2791,
+        "h": 0.0459
+      },
+      "px": {
+        "x": 999,
+        "y": 523,
+        "w": 420,
+        "h": 48
+      },
+      "aspect": 8.75,
+      "palette": [
+        {
+          "hex": "#985838",
+          "coverage": 0.7367
+        },
+        {
+          "hex": "#f7f3f2",
+          "coverage": 0.231
+        },
+        {
+          "hex": "#d3b4a6",
+          "coverage": 0.0153
+        },
+        {
+          "hex": "#b28168",
+          "coverage": 0.0144
+        },
+        {
+          "hex": "#88381d",
+          "coverage": 0.0027
+        }
+      ],
+      "detail": {
+        "energy": 25.7199
+      },
+      "medium": "semantic",
+      "plate": null,
+      "text": null
+    },
+    {
+      "id": "tile-product",
+      "kind": "plate",
+      "note": "light marble tile product vignette",
+      "grid": "A6:B8",
+      "box": {
+        "x": 0,
+        "y": 0.6,
+        "w": 0.2,
+        "h": 0.3
+      },
+      "px": {
+        "x": 0,
+        "y": 627,
+        "w": 301,
+        "h": 314
+      },
+      "aspect": 0.9586,
+      "palette": [
+        {
+          "hex": "#f8f8f8",
+          "coverage": 0.5575
+        },
+        {
+          "hex": "#c7beb4",
+          "coverage": 0.3762
+        },
+        {
+          "hex": "#979083",
+          "coverage": 0.0372
+        },
+        {
+          "hex": "#4d412f",
+          "coverage": 0.016
+        },
+        {
+          "hex": "#7a7351",
+          "coverage": 0.0131
+        }
+      ],
+      "detail": {
+        "energy": 20.7992
+      },
+      "medium": "raster",
+      "plate": "assets/plates/tile-product.png",
+      "text": null
+    },
+    {
+      "id": "bath-product",
+      "kind": "plate",
+      "note": "matte white sanitaryware product vignette",
+      "grid": "C6:D8",
+      "bleed": true,
+      "box": {
+        "x": 0.2,
+        "y": 0.6,
+        "w": 0.2,
+        "h": 0.3
+      },
+      "px": {
+        "x": 301,
+        "y": 627,
+        "w": 301,
+        "h": 314
+      },
+      "aspect": 0.9586,
+      "palette": [
+        {
+          "hex": "#f7f7f7",
+          "coverage": 0.672
+        },
+        {
+          "hex": "#47423e",
+          "coverage": 0.1003
+        },
+        {
+          "hex": "#171613",
+          "coverage": 0.0956
+        },
+        {
+          "hex": "#8a867f",
+          "coverage": 0.0671
+        },
+        {
+          "hex": "#646059",
+          "coverage": 0.065
+        }
+      ],
+      "detail": {
+        "energy": 13.5414
+      },
+      "medium": "raster",
+      "plate": "assets/plates/bath-product.png",
+      "text": null
+    },
+    {
+      "id": "floor-product",
+      "kind": "plate",
+      "note": "warm oak flooring product vignette",
+      "grid": "E6:F8",
+      "bleed": true,
+      "box": {
+        "x": 0.4,
+        "y": 0.6,
+        "w": 0.2,
+        "h": 0.3
+      },
+      "px": {
+        "x": 602,
+        "y": 627,
+        "w": 301,
+        "h": 314
+      },
+      "aspect": 0.9586,
+      "palette": [
+        {
+          "hex": "#f8f8f7",
+          "coverage": 0.709
+        },
+        {
+          "hex": "#8b6a4d",
+          "coverage": 0.1822
+        },
+        {
+          "hex": "#c2c0c0",
+          "coverage": 0.0426
+        },
+        {
+          "hex": "#6b4936",
+          "coverage": 0.0344
+        },
+        {
+          "hex": "#494743",
+          "coverage": 0.0318
+        }
+      ],
+      "detail": {
+        "energy": 20.8944
+      },
+      "medium": "raster",
+      "plate": "assets/plates/floor-product.png",
+      "text": null
+    },
+    {
+      "id": "cabinet-product",
+      "kind": "plate",
+      "note": "dark walnut cabinet product vignette",
+      "grid": "H6:I8",
+      "bleed": true,
+      "box": {
+        "x": 0.7,
+        "y": 0.6,
+        "w": 0.2,
+        "h": 0.3
+      },
+      "px": {
+        "x": 1054,
+        "y": 627,
+        "w": 301,
+        "h": 314
+      },
+      "aspect": 0.9586,
+      "palette": [
+        {
+          "hex": "#f7f7f7",
+          "coverage": 0.5915
+        },
+        {
+          "hex": "#3d352a",
+          "coverage": 0.1709
+        },
+        {
+          "hex": "#685c4f",
+          "coverage": 0.1663
+        },
+        {
+          "hex": "#9c9289",
+          "coverage": 0.0433
+        },
+        {
+          "hex": "#ccc6be",
+          "coverage": 0.028
+        }
+      ],
+      "detail": {
+        "energy": 14.464
+      },
+      "medium": "raster",
+      "plate": "assets/plates/cabinet-product.png",
+      "text": null
+    },
+    {
+      "id": "category-index",
+      "kind": "chrome",
+      "note": "four-column architectural material index",
+      "grid": "A6:J8",
+      "container": true,
+      "box": {
+        "x": 0,
+        "y": 0.6,
+        "w": 1,
+        "h": 0.3
+      },
+      "px": {
+        "x": 0,
+        "y": 627,
+        "w": 1505,
+        "h": 314
+      },
+      "aspect": 4.793,
+      "palette": [
+        {
+          "hex": "#f7f7f7",
+          "coverage": 0.7088
+        },
+        {
+          "hex": "#c6beb5",
+          "coverage": 0.1055
+        },
+        {
+          "hex": "#4f463a",
+          "coverage": 0.0797
+        },
+        {
+          "hex": "#86664a",
+          "coverage": 0.0669
+        },
+        {
+          "hex": "#9a958e",
+          "coverage": 0.0391
+        }
+      ],
+      "detail": {
+        "energy": 31.9426
+      },
+      "medium": "semantic",
+      "plate": null,
+      "text": null
+    },
+    {
+      "id": "coupon-preview",
+      "kind": "chrome",
+      "note": "coupon section beginning",
+      "grid": "A9:E9",
+      "box": {
+        "x": 0,
+        "y": 0.9,
+        "w": 0.5,
+        "h": 0.1
+      },
+      "px": {
+        "x": 0,
+        "y": 941,
+        "w": 753,
+        "h": 105
+      },
+      "aspect": 7.1714,
+      "palette": [
+        {
+          "hex": "#f8f4ed",
+          "coverage": 0.9606
+        },
+        {
+          "hex": "#9a5339",
+          "coverage": 0.0209
+        },
+        {
+          "hex": "#c49d8b",
+          "coverage": 0.0081
+        },
+        {
+          "hex": "#cbc2bb",
+          "coverage": 0.0068
+        },
+        {
+          "hex": "#9a928d",
+          "coverage": 0.0037
+        }
+      ],
+      "detail": {
+        "energy": 17.2653
+      },
+      "medium": "semantic",
+      "plate": null,
+      "text": null
+    },
+    {
+      "id": "ranking-preview",
+      "kind": "chrome",
+      "note": "hot ranking section beginning",
+      "grid": "F9:J9",
+      "box": {
+        "x": 0.5,
+        "y": 0.9,
+        "w": 0.5,
+        "h": 0.1
+      },
+      "px": {
+        "x": 753,
+        "y": 941,
+        "w": 753,
+        "h": 105
+      },
+      "aspect": 7.1714,
+      "palette": [
+        {
+          "hex": "#f7f7f7",
+          "coverage": 0.8986
+        },
+        {
+          "hex": "#bab8b6",
+          "coverage": 0.0582
+        },
+        {
+          "hex": "#8b8989",
+          "coverage": 0.0163
+        },
+        {
+          "hex": "#b07a66",
+          "coverage": 0.0147
+        },
+        {
+          "hex": "#525252",
+          "coverage": 0.0121
+        }
+      ],
+      "detail": {
+        "energy": 19.0556
+      },
+      "medium": "semantic",
+      "plate": null,
+      "text": null
+    }
+  ]
+}

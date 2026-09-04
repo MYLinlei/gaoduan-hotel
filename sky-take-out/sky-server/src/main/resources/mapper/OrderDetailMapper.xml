@@ -4,10 +4,13 @@
 <mapper namespace="com.sky.mapper.OrderDetailMapper">
 
     <insert id="insertBatch">
-        insert into order_detail (name, order_id, dish_id, setmeal_id, dish_flavor, number, amount, image)
+        insert into order_detail (name, order_id, dish_id, product_id, sku_id, setmeal_id, dish_flavor,
+                                  sku_spec, number, amount, image, unit)
         values
         <foreach collection="orderDetailList" item="item" separator=",">
-            (#{item.name}, #{item.orderId}, #{item.dishId}, #{item.setmealId}, #{item.dishFlavor}, #{item.number}, #{item.amount}, #{item.image})
+            (#{item.name}, #{item.orderId}, #{item.dishId}, #{item.productId}, #{item.skuId},
+             #{item.setmealId}, #{item.dishFlavor}, #{item.skuSpec}, #{item.number},
+             #{item.amount}, #{item.image}, #{item.unit})
         </foreach>
     </insert>
 

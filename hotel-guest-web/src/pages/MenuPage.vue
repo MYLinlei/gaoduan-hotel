@@ -1,205 +1,119 @@
 <template>
   <AppLayout>
-    <section class="menu-page">
-      <header class="menu-page__hero glass-card">
-        <div class="menu-page__hero-top">
-          <div>
-            <p class="eyebrow">酒店点餐</p>
-            <h1>云栖酒店餐饮菜单</h1>
-            <p class="menu-page__desc">实时连接后端菜单数据，支持堂食与客房送餐。</p>
-          </div>
-          <RouterLink to="/coupons" class="menu-page__coupon-entry">
-            <span class="menu-page__coupon-icon">券</span>
-            <span>领券中心</span>
-          </RouterLink>
-        </div>
-        <input v-model="keyword" class="field-input" placeholder="搜索菜名，如：和牛、鳕鱼、舒芙蕾" />
-      </header>
-
-      <div class="category-row">
-        <button
-          v-for="category in categories"
-          :key="category.id"
-          class="ghost-button"
-          :class="{ active: activeCategory === category.id }"
-          @click="activeCategory = category.id"
-        >
-          {{ category.name }}
-        </button>
+    <CategoryPageShell :category="category">
+      <div class="catalog-workspace">
+        <FilterSidebar :groups="category.filters" :model-value="filters" @update:model-value="updateFilters" @clear="clearFilters" />
+        <section class="catalog-results" aria-labelledby="catalog-results-title">
+          <h2 id="catalog-results-title" class="sr-only">{{ category.name }}商品结果</h2>
+          <ResultToolbar :count="resultCount" :selected-items="selectedItems" :sort="sort" @remove="removeFilter" @clear="clearFilters" @update:sort="updateSort" />
+          <UnifiedContentState v-if="loading" status="loading" subject="商品" />
+          <UnifiedContentState v-else-if="loadError" :status="loadError.status" subject="商品" :message="loadError.message" @retry="loadProducts" />
+          <UnifiedContentState v-else-if="!pagedProducts.length" status="empty" subject="商品" message="可以清除部分筛选条件，或切换到其他品类继续浏览。" />
+          <template v-else>
+            <ProductGrid :products="firstProductRow" />
+            <section class="category-guide-note" aria-labelledby="category-guide-title">
+              <img :src="category.image" :alt="`${category.name}材质细节`" width="320" height="170" loading="lazy" />
+              <div><h2 id="category-guide-title">{{ category.guide.title }}</h2><div class="category-guide-note__points"><article v-for="point in category.guide.points" :key="point.title"><h3>{{ point.title }}</h3><p>{{ point.text }}</p></article></div></div>
+              <RouterLink :to="{ path: '/service', hash: `#${category.key}` }">查看完整指南 <IconSymbol name="arrow" /></RouterLink>
+            </section>
+            <ProductGrid v-if="remainingProducts.length" class="catalog-results__remaining" :products="remainingProducts" />
+            <QuantityEstimator :category-key="category.key" compact />
+            <nav v-if="pageCount > 1" class="catalog-pagination" aria-label="商品分页">
+              <button type="button" :disabled="page <= 1" @click="updatePage(page - 1)">上一页</button>
+              <button v-for="item in pageCount" :key="item" type="button" :aria-current="page === item ? 'page' : undefined" @click="updatePage(item)">{{ item }}</button>
+              <button type="button" :disabled="page >= pageCount" @click="updatePage(page + 1)">下一页</button>
+            </nav>
+          </template>
+        </section>
       </div>
-
-      <section class="menu-page__grid">
-        <DishCard v-for="dish in filteredDishes" :key="dish.id" :dish="dish" />
-        <article v-if="!loading && !filteredDishes.length" class="field-card">当前分类暂无菜品。</article>
-      </section>
-    </section>
+    </CategoryPageShell>
   </AppLayout>
 </template>
 
 <script setup>
-import { computed, onMounted, ref, watch } from "vue";
+import { computed, ref, watch } from "vue";
+import { useRoute, useRouter } from "vue-router";
 import AppLayout from "../components/AppLayout.vue";
-import DishCard from "../components/DishCard.vue";
-import { request } from "../api/http";
+import CategoryPageShell from "../components/CategoryPageShell.vue";
+import FilterSidebar from "../components/FilterSidebar.vue";
+import IconSymbol from "../components/IconSymbol.vue";
+import ProductGrid from "../components/ProductGrid.vue";
+import QuantityEstimator from "../components/QuantityEstimator.vue";
+import ResultToolbar from "../components/ResultToolbar.vue";
+import UnifiedContentState from "../components/UnifiedContentState.vue";
+import { categoryCatalog, classifyRequestError, filterAndSortProducts, getCategoryConfig, loadCategoryProducts } from "../services/catalogService";
 
-const categories = ref([]);
-const dishes = ref([]);
-const activeCategory = ref(null);
-const keyword = ref("");
-const loading = ref(false);
+const route = useRoute(); const router = useRouter();
+const category = ref(categoryCatalog[0]); const products = ref([]); const filters = ref({});
+const loading = ref(false); const loadError = ref(null); const sort = ref("default"); const page = ref(1); const pageSize = 9;
+const total = ref(0); const serverPaged = ref(true);
+let loadSequence = 0;
 
-function normalizeDish(dish) {
-  return {
-    ...dish,
-    intro: dish.description || "主厨精选菜品",
-    tags: buildTags(dish),
-    image: dish.image || "linear-gradient(135deg, #152238, #2c4464)"
-  };
+const selectedItems = computed(() => category.value.filters.flatMap((group) => (filters.value[group.key] || []).map((value) => ({ key: group.key, label: group.label, value }))));
+const hasLocalFilters = computed(() => selectedItems.value.length > 0);
+const filteredProducts = computed(() => filterAndSortProducts(products.value, {
+  keyword: serverPaged.value ? "" : String(route.query.q || ""),
+  filters: filters.value,
+  sort: serverPaged.value ? "default" : sort.value
+}));
+const resultCount = computed(() => serverPaged.value ? total.value : filteredProducts.value.length);
+const pageCount = computed(() => Math.max(1, Math.ceil(resultCount.value / pageSize)));
+const pagedProducts = computed(() => serverPaged.value ? filteredProducts.value : filteredProducts.value.slice((page.value - 1) * pageSize, page.value * pageSize));
+const firstProductRow = computed(() => pagedProducts.value.slice(0, 3));
+const remainingProducts = computed(() => pagedProducts.value.slice(3));
+
+function queryForCategory() { return route.query.category || route.query.categoryKey || route.query.categoryId || "tile"; }
+function readQueryState() {
+  category.value = getCategoryConfig(queryForCategory()); sort.value = String(route.query.sort || "default"); page.value = Math.max(1, Number(route.query.page || 1));
+  filters.value = Object.fromEntries(category.value.filters.map((group) => {
+    const legacyRoom = group.key === "space" ? route.query.room : undefined;
+    return [group.key, String(route.query[group.key] || legacyRoom || "").split("|").filter(Boolean)];
+  }));
 }
-
-function buildTags(dish) {
-  const tags = [];
-  if (dish.tagType === "WINE") tags.push("名酒");
-  if (dish.tagType === "BANQUET") tags.push("宴会");
-  if ((dish.score || 0) >= 4.5) tags.push("招牌");
-  if ((dish.luxuryLevel || 0) >= 4) tags.push("轻奢");
-  return tags.length ? tags : ["精选"];
-}
-
-async function loadCategories() {
-  categories.value = await request("/user/category/list?type=1", {
-    authRequired: false
-  });
-  if (!activeCategory.value && categories.value.length) {
-    activeCategory.value = categories.value[0].id;
-  }
-}
-
-async function loadDishes(categoryId) {
-  if (!categoryId) return;
+function patchQuery(patch) { router.push({ path: "/menu", query: { ...route.query, category: category.value.name, ...patch } }); }
+function updateFilters(value) { filters.value = value; const patch = { page: undefined }; category.value.filters.forEach((group) => { patch[group.key] = value[group.key]?.length ? value[group.key].join("|") : undefined; }); patchQuery(patch); }
+function clearFilters() { const patch = { page: undefined }; category.value.filters.forEach((group) => { patch[group.key] = undefined; }); patchQuery(patch); }
+function removeFilter(item) { updateFilters({ ...filters.value, [item.key]: (filters.value[item.key] || []).filter((value) => value !== item.value) }); }
+function updateSort(value) { patchQuery({ sort: value === "default" ? undefined : value, page: undefined }); }
+function updatePage(value) { patchQuery({ page: value > 1 ? value : undefined }); window.scrollTo({ top: 250, behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" }); }
+async function loadProducts() {
+  const sequence = ++loadSequence;
+  const categoryKey = category.value.key;
+  const useServerPage = !hasLocalFilters.value;
   loading.value = true;
+  loadError.value = null;
   try {
-    const data = await request(`/user/dish/list?categoryId=${categoryId}`, {
-      authRequired: false
+    const result = await loadCategoryProducts(categoryKey, {
+      keyword: String(route.query.q || "").trim(),
+      sort: sort.value,
+      page: useServerPage ? page.value : 1,
+      pageSize: useServerPage ? pageSize : 60,
+      serverPaged: useServerPage
     });
-    dishes.value = (data || []).map(normalizeDish);
+    if (sequence === loadSequence && category.value.key === categoryKey) {
+      products.value = result.products;
+      total.value = result.total;
+      serverPaged.value = result.serverPaged;
+    }
+  } catch (error) {
+    if (sequence === loadSequence) loadError.value = classifyRequestError(error);
   } finally {
-    loading.value = false;
+    if (sequence === loadSequence) loading.value = false;
   }
 }
-
-const filteredDishes = computed(() =>
-  dishes.value.filter((dish) => {
-    const q = keyword.value.trim();
-    return (
-      !q ||
-      dish.name.includes(q) ||
-      (dish.intro || "").includes(q) ||
-      (dish.tags || []).some((tag) => tag.includes(q))
-    );
-  })
-);
-
-watch(activeCategory, (value) => {
-  loadDishes(value);
-});
-
-onMounted(async () => {
-  await loadCategories();
-});
+watch(() => route.fullPath, async () => { readQueryState(); await loadProducts(); }, { immediate: true });
 </script>
 
 <style scoped>
-.menu-page {
-  display: grid;
-  gap: 18px;
-}
-
-.menu-page__hero {
-  padding: 22px;
-  border-radius: var(--radius-xl);
-  display: grid;
-  gap: 14px;
-  position: sticky;
-  top: 10px;
-  z-index: 5;
-}
-
-.menu-page__hero-top {
-  display: flex;
-  justify-content: space-between;
-  gap: 14px;
-  align-items: start;
-}
-
-.menu-page__desc {
-  margin-top: 10px;
-  color: var(--color-text-muted);
-  line-height: 1.7;
-}
-
-.menu-page__coupon-entry {
-  min-width: 94px;
-  padding: 12px 14px;
-  border-radius: 22px;
-  background: linear-gradient(135deg, rgba(17, 36, 60, 0.96), rgba(43, 68, 102, 0.92));
-  color: #fff;
-  display: grid;
-  justify-items: center;
-  gap: 6px;
-  box-shadow: var(--shadow-md);
-}
-
-.menu-page__coupon-icon {
-  width: 34px;
-  height: 34px;
-  border-radius: 999px;
-  display: grid;
-  place-items: center;
-  background: rgba(255, 255, 255, 0.14);
-  border: 1px solid rgba(255, 255, 255, 0.22);
-}
-
-.category-row {
-  display: flex;
-  gap: 10px;
-  overflow-x: auto;
-  padding-bottom: 4px;
-  position: sticky;
-  top: 188px;
-  z-index: 4;
-  background: linear-gradient(180deg, rgba(245, 243, 238, 0.96), rgba(245, 243, 238, 0.76));
-  padding-top: 4px;
-}
-
-.category-row button {
-  white-space: nowrap;
-}
-
-.category-row .active {
-  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-soft));
-  color: #fff;
-}
-
-.menu-page__grid {
-  display: grid;
-  gap: 14px;
-}
-
-@media (min-width: 768px) {
-  .menu-page__grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (max-width: 767px) {
-  .menu-page__hero-top {
-    align-items: center;
-  }
-
-  .menu-page__coupon-entry {
-    min-width: 82px;
-    padding: 10px 12px;
-  }
-}
+.catalog-workspace { display: grid; grid-template-columns: 236px minmax(0, 1fr); gap: 14px; align-items: start; }
+.catalog-results { min-width: 0; }
+.category-guide-note { min-height: 146px; margin-top: 14px; display: grid; grid-template-columns: 230px 1fr 150px; align-items: stretch; border: 1px solid var(--color-line); background: #faf8f5; }
+.category-guide-note > img { width: 100%; height: 100%; object-fit: cover; }
+.category-guide-note > div { padding: 19px 24px; }.category-guide-note h2 { font-size: 22px; }.category-guide-note__points { margin-top: 14px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+.category-guide-note__points h3 { font-size: 13px; }.category-guide-note__points p { margin-top: 5px; color: var(--color-muted); font-size: 12px; line-height: 1.6; }
+.category-guide-note > a { padding: 20px; display: flex; align-items: center; justify-content: center; gap: 7px; color: var(--color-accent-dark); }.category-guide-note > a .ui-icon { width: 17px; }
+.catalog-results__remaining { margin-top: 0; }
+.catalog-results > :deep(.quantity-estimator) { margin-top: 14px; }
+.catalog-pagination { min-height: 68px; margin-top: 14px; display: flex; align-items: center; justify-content: center; gap: 8px; border-top: 1px solid var(--color-line); }
+.catalog-pagination button { min-width: 44px; min-height: 44px; background: var(--color-paper); border: 1px solid var(--color-line); }.catalog-pagination button[aria-current="page"] { color: #fff; background: var(--color-accent); border-color: var(--color-accent); }
 </style>

@@ -1,18 +1,19 @@
 <template>
   <article class="dish-card glass-card">
-    <div class="dish-card__image" :style="{ background: dish.image }" @click="goDetail">
+    <div class="dish-card__image" @click="goDetail">
+      <img :src="dish.image" :alt="dish.name" width="520" height="360" loading="lazy" />
       <span v-for="tag in dish.tags.slice(0, 2)" :key="tag" class="dish-card__tag">{{ tag }}</span>
     </div>
     <div class="dish-card__content">
       <div class="dish-card__header" @click="goDetail">
         <h3>{{ dish.name }}</h3>
-        <strong>￥{{ Number(dish.price || 0).toFixed(2) }}</strong>
+        <strong>￥{{ Number(dish.price || 0).toFixed(2) }} / {{ dish.unit || '件' }}</strong>
       </div>
       <p class="dish-card__intro" @click="goDetail">{{ dish.intro }}</p>
       <div class="dish-card__footer">
         <button class="ghost-button" @click="goDetail">查看详情</button>
         <button class="primary-button" :disabled="!shop.isOpen" @click="handleAdd">
-          {{ shop.isOpen ? "+ 加入购物车" : "打烊中" }}
+          {{ shop.isOpen ? "加入购物车" : "暂停下单" }}
         </button>
       </div>
     </div>
@@ -45,7 +46,7 @@ function goDetail() {
 
 async function handleAdd() {
   if (!shop.isOpen) {
-    window.alert("当前酒店已打烊，暂不支持加购。");
+    window.alert("当前暂停提交新订单，请稍后再试。");
     return;
   }
   if (!auth.isLoggedIn) {
@@ -65,20 +66,33 @@ async function handleAdd() {
 
 .dish-card__image {
   min-height: 164px;
-  padding: 14px;
-  display: flex;
-  gap: 8px;
-  align-items: flex-start;
+  position: relative;
   cursor: pointer;
 }
 
+.dish-card__image img {
+  width: 100%;
+  height: 220px;
+  object-fit: cover;
+}
+
 .dish-card__tag {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 1;
+  margin: 0;
   display: inline-flex;
   padding: 6px 10px;
-  border-radius: 999px;
+  border-radius: var(--radius-sm);
   background: rgba(255, 255, 255, 0.82);
   color: var(--color-primary);
   font-size: 12px;
+}
+
+.dish-card__tag:nth-of-type(2) {
+  right: 12px;
+  left: auto;
 }
 
 .dish-card__content {

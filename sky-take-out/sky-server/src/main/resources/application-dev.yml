@@ -5,6 +5,14 @@ spring:
     import: optional:classpath:application-local.yml
 
 sky:
+  order:
+    payment-timeout-minutes: ${ORDER_PAYMENT_TIMEOUT_MINUTES:15}
+    timeout-scan-enabled: ${ORDER_TIMEOUT_SCAN_ENABLED:true}
+    timeout-scan-initial-delay-ms: ${ORDER_TIMEOUT_SCAN_INITIAL_DELAY_MS:60000}
+    timeout-scan-interval-ms: ${ORDER_TIMEOUT_SCAN_INTERVAL_MS:60000}
+  sms:
+    # 仅开发环境输出验证码，便于 IDEA 本地联调；prod Profile 不启用。
+    log-code: ${SMS_LOG_CODE:true}
   upload-dir: ${UPLOAD_DIR:./uploads}
   file-host: ${FILE_HOST:http://localhost:8081}
   datasource:

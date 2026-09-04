@@ -35,7 +35,10 @@ export async function request(url, options = {}) {
       window.localStorage.removeItem("hotel-guest-user");
     }
     const message = payload.msg || `请求失败：${response.status}`;
-    throw new Error(message);
+    const error = new Error(message);
+    error.status = response.status;
+    error.code = payload.code;
+    throw error;
   }
   return payload.data;
 }

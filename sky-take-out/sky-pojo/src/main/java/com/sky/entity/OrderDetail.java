@@ -30,11 +30,20 @@ public class OrderDetail implements Serializable {
     //菜品id
     private Long dishId;
 
+    //商品 SPU id
+    private Long productId;
+
+    //商品 SKU id
+    private Long skuId;
+
     //套餐id
     private Long setmealId;
 
     //口味
     private String dishFlavor;
+
+    //SKU 规格快照
+    private String skuSpec;
 
     //数量
     private Integer number;
@@ -44,4 +53,7 @@ public class OrderDetail implements Serializable {
 
     //图片
     private String image;
+
+    //计价单位
+    private String unit;
 }

@@ -9,7 +9,7 @@
 
       <section v-if="!auth.isLoggedIn" class="glass-card orders-page__detail">
         <h2>请先登录</h2>
-        <button class="primary-button" @click="auth.openLogin">住客登录</button>
+        <button class="primary-button" @click="auth.openLogin">账户登录</button>
       </section>
 
       <template v-else>
@@ -60,11 +60,11 @@
                 <p>{{ selectedOrder.displayStatus }}</p>
               </div>
               <div class="field-card">
-                <h4>用餐方式</h4>
-                <p>{{ selectedOrder.orderType === 2 ? "堂食" : "客房送餐" }}</p>
+                <h4>收货方式</h4>
+                <p>{{ selectedOrder.orderType === 2 ? "门店自提" : "配送到家" }}</p>
               </div>
               <div class="field-card">
-                <h4>桌台号 / 房号</h4>
+                <h4>自提联系人 / 配送地址</h4>
                 <p>{{ selectedOrder.location }}</p>
               </div>
               <div class="field-card">
@@ -75,7 +75,8 @@
             <div class="orders-page__detail-items">
               <article v-for="item in selectedOrder.items" :key="item.name" class="field-card">
                 <strong>{{ item.name }}</strong>
-                <p>数量 x{{ item.number || item.quantity }} · 单价 ¥{{ item.amount || item.price }}</p>
+                <p v-if="item.skuSpec || item.dishFlavor">{{ item.skuSpec || item.dishFlavor }}</p>
+                <p>数量 x{{ item.number || item.quantity }} · 单价 ¥{{ item.amount || item.price }}{{ item.unit ? ` / ${item.unit}` : "" }}</p>
               </article>
             </div>
           </section>
@@ -101,7 +102,7 @@ let timer = null;
 function payMethodLabel(value) {
   if (value === 1) return "微信支付";
   if (value === 2) return "支付宝";
-  if (value === 3) return "挂房账";
+  if (value === 3) return "到店支付";
   return "未设置";
 }
 

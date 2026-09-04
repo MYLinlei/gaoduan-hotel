@@ -12,8 +12,9 @@ const routes = [
     component: () => import("../pages/MenuPage.vue")
   },
   {
-    path: "/dish/:id",
-    name: "dish-detail",
+    path: "/product/:id",
+    alias: "/dish/:id",
+    name: "product-detail",
     component: () => import("../pages/DishDetailPage.vue")
   },
   {
@@ -46,8 +47,11 @@ const routes = [
 const router = createRouter({
   history: createWebHashHistory(import.meta.env.BASE_URL),
   routes,
-  scrollBehavior() {
-    return { top: 0, behavior: "smooth" };
+  scrollBehavior(to, from, savedPosition) {
+    if (savedPosition) return savedPosition;
+    const behavior = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth";
+    if (to.hash) return { el: to.hash, top: 72, behavior };
+    return { top: 0, behavior };
   }
 });
 

@@ -1,6 +1,6 @@
 import { computed, ref, watch } from "vue";
 import { defineStore } from "pinia";
-import { request } from "../api/http";
+import { claimCouponById, fetchCouponCatalog, fetchMyCoupons } from "../services/couponService";
 import { readStorage, writeStorage } from "../utils/storage";
 
 const SELECTED_KEY = "hotel-guest-coupons-selected";
@@ -15,13 +15,13 @@ export const useCouponsStore = defineStore("coupons", () => {
   const myCoupons = computed(() => myCouponList.value);
 
   async function loadCouponCenter() {
-    couponCenter.value = await request("/user/hotelHighVoucher/list", {
-      authRequired: false
-    });
+    loading.value = true;
+    try { couponCenter.value = await fetchCouponCatalog(myCouponList.value.map((item) => item.voucherId)); }
+    finally { loading.value = false; }
   }
 
   async function loadMyCoupons() {
-    myCouponList.value = await request("/user/hotelHighVoucher/my");
+    myCouponList.value = await fetchMyCoupons();
   }
 
   function isClaimed(couponId) {
@@ -29,10 +29,9 @@ export const useCouponsStore = defineStore("coupons", () => {
   }
 
   async function claimCoupon(couponId) {
-    await request(`/user/hotelHighVoucher/seckill/${couponId}`, {
-      method: "POST"
-    });
+    await claimCouponById(couponId);
     await loadMyCoupons();
+    await loadCouponCenter();
     return true;
   }
 

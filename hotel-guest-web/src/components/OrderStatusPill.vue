@@ -24,7 +24,7 @@ const statusClass = computed(() => {
 .pill {
   display: inline-flex;
   padding: 7px 12px;
-  border-radius: 999px;
+  border-radius: var(--radius-sm);
   font-size: 12px;
 }
 

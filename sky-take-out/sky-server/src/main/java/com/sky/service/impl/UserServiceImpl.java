@@ -13,6 +13,7 @@ import com.sky.utils.RegexUtils;
 import com.sky.vo.UserLoginVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -31,6 +32,9 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private StringRedisTemplate stringRedisTemplate;
 
+    @Value("${sky.sms.log-code:false}")
+    private boolean logSmsCode;
+
     @Override
     public void sendCode(String phone) {
         String safePhone = trim(phone);
@@ -46,7 +50,11 @@ public class UserServiceImpl implements UserService {
                 RedisLoginConstant.LOGIN_CODE_TTL_MINUTES,
                 TimeUnit.MINUTES
         );
-        log.info("sms login code generated and stored with a short TTL");
+        if (logSmsCode) {
+            log.info("本地登录验证码：phone={}, code={}，{} 分钟内有效", safePhone, code, RedisLoginConstant.LOGIN_CODE_TTL_MINUTES);
+        } else {
+            log.info("sms login code generated and stored with a short TTL");
+        }
     }
 
     @Override

@@ -1,0 +1,20 @@
+{
+  "regions": [
+    { "id": "service-strip", "kind": "chrome", "grid": "A0:J0", "note": "slim warm-gray service strip" },
+    { "id": "global-header", "kind": "chrome", "grid": "A0:J1", "note": "white brand, search and commerce navigation" },
+    { "id": "brand-mark", "kind": "text", "grid": "A0:B1", "note": "serif 筑家优选 wordmark with small descriptor" },
+    { "id": "global-search", "kind": "control", "grid": "C0:F1", "note": "wide bordered product search" },
+    { "id": "hero-space", "kind": "plate", "grid": "A2:F5", "note": "wide contemporary living room material scene", "bleed": true },
+    { "id": "hero-heading", "kind": "text", "grid": "G2:J3", "note": "large two-line serif heading" },
+    { "id": "hero-copy", "kind": "text", "grid": "G3:J4", "note": "short explanatory body copy" },
+    { "id": "hero-search", "kind": "control", "grid": "G4:J4", "note": "secondary material search" },
+    { "id": "hero-action", "kind": "control", "grid": "G5:J5", "note": "full-width terracotta action" },
+    { "id": "tile-product", "kind": "plate", "grid": "A6:B8", "note": "light marble tile product vignette" },
+    { "id": "bath-product", "kind": "plate", "grid": "C6:D8", "note": "matte white sanitaryware product vignette", "bleed": true },
+    { "id": "floor-product", "kind": "plate", "grid": "E6:F8", "note": "warm oak flooring product vignette", "bleed": true },
+    { "id": "cabinet-product", "kind": "plate", "grid": "H6:I8", "note": "dark walnut cabinet product vignette", "bleed": true },
+    { "id": "category-index", "kind": "chrome", "grid": "A6:J8", "note": "four-column architectural material index", "container": true },
+    { "id": "coupon-preview", "kind": "chrome", "grid": "A9:E9", "note": "coupon section beginning" },
+    { "id": "ranking-preview", "kind": "chrome", "grid": "F9:J9", "note": "hot ranking section beginning" }
+  ]
+}

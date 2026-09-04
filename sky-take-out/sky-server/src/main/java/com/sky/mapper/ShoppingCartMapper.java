@@ -12,6 +12,8 @@ public interface ShoppingCartMapper {
             "<script>",
             "select * from shopping_cart",
             "where user_id = #{userId}",
+            "<if test='productId != null'> and product_id = #{productId}</if>",
+            "<if test='skuId != null'> and sku_id = #{skuId}</if>",
             "<if test='dishId != null'> and dish_id = #{dishId}</if>",
             "<if test='setmealId != null'> and setmeal_id = #{setmealId}</if>",
             "<if test='dishFlavor != null and dishFlavor != \"\"'> and dish_flavor = #{dishFlavor}</if>",
@@ -21,11 +23,14 @@ public interface ShoppingCartMapper {
     List<ShoppingCart> list(ShoppingCart shoppingCart);
 
     @Options(useGeneratedKeys = true, keyProperty = "id")
-    @Insert("insert into shopping_cart (name, user_id, dish_id, setmeal_id, dish_flavor, number, amount, image, create_time) " +
-            "values (#{name}, #{userId}, #{dishId}, #{setmealId}, #{dishFlavor}, #{number}, #{amount}, #{image}, #{createTime})")
+    @Insert("insert into shopping_cart (name, user_id, dish_id, product_id, sku_id, setmeal_id, dish_flavor, " +
+            "sku_spec, number, amount, image, unit, create_time) " +
+            "values (#{name}, #{userId}, #{dishId}, #{productId}, #{skuId}, #{setmealId}, #{dishFlavor}, " +
+            "#{skuSpec}, #{number}, #{amount}, #{image}, #{unit}, #{createTime})")
     void insert(ShoppingCart shoppingCart);
 
-    @Update("update shopping_cart set number = #{number} where id = #{id}")
+    @Update("update shopping_cart set name = #{name}, dish_id = #{dishId}, sku_spec = #{skuSpec}, " +
+            "number = #{number}, amount = #{amount}, image = #{image}, unit = #{unit} where id = #{id}")
     void updateNumberById(ShoppingCart shoppingCart);
 
     @Delete("delete from shopping_cart where id = #{id}")

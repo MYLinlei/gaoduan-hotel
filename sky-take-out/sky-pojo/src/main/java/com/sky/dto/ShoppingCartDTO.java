@@ -7,7 +7,10 @@ import java.io.Serializable;
 public class ShoppingCartDTO implements Serializable {
 
     private Long dishId;
+    private Long productId;
+    private Long skuId;
     private Long setmealId;
     private String dishFlavor;
+    private Integer quantity;
 
 }

@@ -1,0 +1,5 @@
+Use case: precise-object-edit
+Asset type: corrected high-fidelity desktop UI comp
+Primary request: Edit only the visible specification-table content at the very bottom of the product detail comp. Remove the unverified rows or values “型号 JJC75015YH” and “产地 广东·佛山”. Replace them with neutral, supported presentation fields: “计价单位  元/㎡” and “适用空间  客厅、餐厅”. Keep the product name row and every other pixel, layout, header, gallery, buying panel, estimator, typography, colors, spacing, borders, images and controls unchanged.
+Constraints: preserve exact 1440×1000 straight-on web screenshot composition; no new claims, ratings, sales, authorization, origin, model number, delivery promise or warranty information.
+Avoid: re-layout, restyling, cropping, text changes outside the bottom specification table, extra badges, watermark.

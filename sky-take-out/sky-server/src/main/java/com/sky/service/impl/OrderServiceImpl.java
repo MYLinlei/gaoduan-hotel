@@ -16,6 +16,7 @@ import com.sky.mapper.OrderDetailMapper;
 import com.sky.mapper.OrdersMapper;
 import com.sky.result.PageResult;
 import com.sky.service.OrderService;
+import com.sky.service.SkuInventoryService;
 import com.sky.vo.OrderStatisticsVO;
 import com.sky.vo.OrderVO;
 import org.springframework.beans.BeanUtils;
@@ -39,6 +40,9 @@ public class OrderServiceImpl implements OrderService {
 
     @Autowired
     private HotelRiderMapper hotelRiderMapper;
+
+    @Autowired
+    private SkuInventoryService skuInventoryService;
 
     @Override
     public PageResult conditionSearch(OrdersPageQueryDTO ordersPageQueryDTO) {
@@ -75,10 +79,11 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional
     public void rejection(OrdersRejectionDTO ordersRejectionDTO) {
-        Orders orders = getExistingOrder(ordersRejectionDTO.getId());
+        Orders orders = getExistingOrderForUpdate(ordersRejectionDTO.getId());
         if (!canReject(orders)) {
             throw new OrderBusinessException(MessageConstant.ORDER_STATUS_ERROR);
         }
+        skuInventoryService.release(orders);
 
         ordersMapper.update(Orders.builder()
                 .id(orders.getId())
@@ -93,10 +98,11 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional
     public void cancel(OrdersCancelDTO ordersCancelDTO) {
-        Orders orders = getExistingOrder(ordersCancelDTO.getId());
+        Orders orders = getExistingOrderForUpdate(ordersCancelDTO.getId());
         if (Orders.CANCELLED.equals(orders.getStatus()) || Orders.COMPLETED.equals(orders.getStatus())) {
             throw new OrderBusinessException(MessageConstant.ORDER_STATUS_ERROR);
         }
+        skuInventoryService.release(orders);
 
         ordersMapper.update(Orders.builder()
                 .id(orders.getId())
@@ -172,6 +178,14 @@ public class OrderServiceImpl implements OrderService {
 
     private Orders getExistingOrder(Long orderId) {
         Orders orders = ordersMapper.getById(orderId);
+        if (orders == null) {
+            throw new OrderBusinessException(MessageConstant.ORDER_NOT_FOUND);
+        }
+        return orders;
+    }
+
+    private Orders getExistingOrderForUpdate(Long orderId) {
+        Orders orders = ordersMapper.getByIdForUpdate(orderId);
         if (orders == null) {
             throw new OrderBusinessException(MessageConstant.ORDER_NOT_FOUND);
         }

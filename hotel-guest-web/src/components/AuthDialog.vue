@@ -2,17 +2,19 @@
   <Teleport to="body">
     <Transition name="fade-slide">
       <div v-if="auth.loginOpen" class="auth-dialog">
-        <div class="auth-dialog__mask" @click="auth.closeLogin" />
-        <section class="auth-dialog__panel glass-card">
+        <div class="auth-dialog__mask" aria-hidden="true" @click="auth.closeLogin" />
+        <section ref="panel" class="auth-dialog__panel glass-card" role="dialog" aria-modal="true" aria-labelledby="auth-dialog-title">
           <div class="section-title">
             <div>
-              <p class="eyebrow">住客登录</p>
-              <h3>短信验证码登录</h3>
+              <p class="eyebrow">账户登录</p>
+              <h3 id="auth-dialog-title">短信验证码登录</h3>
             </div>
-            <button class="ghost-button" @click="auth.closeLogin">关闭</button>
+            <button class="ghost-button" type="button" aria-label="关闭登录窗口" @click="auth.closeLogin">关闭</button>
           </div>
 
+          <label class="sr-only" for="login-phone">手机号</label>
           <input
+            id="login-phone"
             v-model="auth.loginForm.phone"
             class="field-input"
             maxlength="11"
@@ -20,7 +22,9 @@
           />
 
           <div class="auth-dialog__code-row">
+            <label class="sr-only" for="login-code">短信验证码</label>
             <input
+              id="login-code"
               v-model="auth.loginForm.code"
               class="field-input"
               maxlength="6"
@@ -35,7 +39,7 @@
             </button>
           </div>
 
-          <p class="auth-dialog__hint">验证码会写入 Redis，当前为开发联调模式，后续可接短信 SDK。</p>
+          <p class="auth-dialog__hint">验证码发送后请在有效时间内完成登录；未收到时可在倒计时结束后重新获取。</p>
 
           <button class="primary-button" :disabled="auth.loggingIn" @click="handleLogin">
             {{ auth.loggingIn ? "登录中..." : "立即登录" }}
@@ -47,6 +51,7 @@
 </template>
 
 <script setup>
+import { nextTick, onBeforeUnmount, ref, watch } from "vue";
 import { useAuthStore } from "../stores/auth";
 import { useCartStore } from "../stores/cart";
 import { useCouponsStore } from "../stores/coupons";
@@ -56,11 +61,38 @@ const auth = useAuthStore();
 const cart = useCartStore();
 const coupons = useCouponsStore();
 const orders = useOrdersStore();
+const panel = ref(null);
+let previouslyFocused = null;
+const focusableSelector = 'button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), a[href], [tabindex]:not([tabindex="-1"])';
+
+function handleDialogKeydown(event) {
+  if (event.key === "Escape") { event.preventDefault(); auth.closeLogin(); return; }
+  if (event.key !== "Tab" || !panel.value) return;
+  const controls = [...panel.value.querySelectorAll(focusableSelector)];
+  if (!controls.length) return;
+  const first = controls[0]; const last = controls[controls.length - 1];
+  if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+  else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+}
+
+watch(() => auth.loginOpen, async (open) => {
+  if (open) {
+    previouslyFocused = document.activeElement;
+    await nextTick();
+    document.addEventListener("keydown", handleDialogKeydown);
+    panel.value?.querySelector(focusableSelector)?.focus();
+  } else {
+    document.removeEventListener("keydown", handleDialogKeydown);
+    previouslyFocused?.focus?.();
+    previouslyFocused = null;
+  }
+});
+onBeforeUnmount(() => document.removeEventListener("keydown", handleDialogKeydown));
 
 async function handleSendCode() {
   try {
     await auth.sendCode();
-    window.alert("验证码已发送，请查看短信服务或后端日志。");
+    window.alert("验证码已发送，请留意短信通知。");
   } catch (error) {
     window.alert(error.message);
   }
@@ -86,7 +118,7 @@ async function handleLogin() {
 .auth-dialog__mask {
   position: absolute;
   inset: 0;
-  background: rgba(7, 18, 34, 0.34);
+  background: rgba(31, 27, 22, 0.48);
 }
 
 .auth-dialog__panel {

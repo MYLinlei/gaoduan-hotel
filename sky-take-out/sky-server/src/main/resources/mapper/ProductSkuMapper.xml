@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sky.mapper.ProductSkuMapper">
+
+    <select id="listByProductId" resultType="com.sky.vo.ProductSkuVO">
+        select id,
+               sku_code,
+               sku_name,
+               spec_json,
+               sale_price,
+               original_price,
+               stock,
+               locked_stock,
+               greatest(stock - locked_stock, 0) as available_stock,
+               status
+        from product_sku
+        where product_id = #{productId}
+          and is_deleted = 0
+        order by status desc, sort desc, id asc
+    </select>
+
+    <select id="getById" resultType="com.sky.entity.ProductSku">
+        select *
+        from product_sku
+        where id = #{id}
+          and is_deleted = 0
+        limit 1
+    </select>
+</mapper>

@@ -3,7 +3,7 @@
     <div class="order-card__head">
       <div>
         <h3>{{ order.number || order.id }}</h3>
-        <p>{{ order.orderType === 2 ? "堂食" : "客房送餐" }} · {{ order.location }}</p>
+        <p>{{ order.orderType === 2 ? "门店自提" : "配送到家" }} · {{ order.location }}</p>
       </div>
       <OrderStatusPill :status="order.displayStatus" />
     </div>
@@ -52,6 +52,7 @@ defineEmits(["detail", "urge"]);
 .order-card {
   padding: 18px;
   border-radius: var(--radius-lg);
+  border-width: 1px 0 0;
   display: grid;
   gap: 14px;
 }

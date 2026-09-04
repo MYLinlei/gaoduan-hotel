@@ -2,47 +2,59 @@
   <Teleport to="body">
     <Transition name="fade-slide">
       <div v-if="ui.cartOpen" class="drawer">
-        <div class="drawer__mask" @click="ui.closeCart" />
-        <aside class="drawer__panel glass-card">
+        <div class="drawer__mask" aria-hidden="true" @click="ui.closeCart" />
+        <aside ref="panel" class="drawer__panel glass-card" role="dialog" aria-modal="true" aria-labelledby="cart-drawer-title">
           <div class="section-title">
             <div>
               <p class="eyebrow">购物车</p>
-              <h3>已点菜品</h3>
+              <h3 id="cart-drawer-title">已选商品</h3>
             </div>
-            <button class="ghost-button" @click="ui.closeCart">关闭</button>
+            <button class="ghost-button" type="button" aria-label="关闭购物车" @click="ui.closeCart">关闭</button>
           </div>
 
           <div v-if="!auth.isLoggedIn" class="field-card">
-            <p>登录后可同步真实购物车与优惠券状态。</p>
-            <button class="primary-button drawer__auth-button" @click="auth.openLogin">立即登录</button>
+            <p>登录后可同步购物车与优惠券状态。</p>
+            <button class="primary-button drawer__auth-button" type="button" @click="auth.openLogin">立即登录</button>
           </div>
 
           <div v-else-if="!cart.items.length" class="drawer__empty field-card">
-            当前购物车为空，请先选择菜品。
+            当前购物车为空，请先选择商品。
           </div>
 
           <div v-else class="drawer__list">
             <article v-for="item in cart.items" :key="item.id" class="drawer__item field-card">
               <div class="drawer__item-main">
                 <h4>{{ item.name }}</h4>
-                <p v-if="item.dishFlavor">{{ item.dishFlavor }}</p>
+                <p v-if="item.skuSpec || item.dishFlavor">{{ item.skuSpec || item.dishFlavor }}</p>
               </div>
               <div class="drawer__item-side">
-                <strong>￥{{ Number(item.amount || 0).toFixed(2) }}</strong>
+                <strong>￥{{ Number(item.amount || 0).toFixed(2) }}<small v-if="item.unit"> / {{ item.unit }}</small></strong>
                 <div class="drawer__stepper">
-                  <button :disabled="!shop.isOpen" @click="cart.decrease(item)">-</button>
+                  <button
+                    type="button"
+                    :disabled="!shop.isOpen || cart.mutating || Number(item.number || 0) < 1"
+                    :aria-label="`减少${item.name}数量`"
+                    @click="handleDecrease(item)"
+                  >-</button>
                   <span>{{ item.number }}</span>
-                  <button :disabled="!shop.isOpen" @click="cart.increase(item)">+</button>
+                  <button
+                    type="button"
+                    :disabled="!shop.isOpen || cart.mutating || Number(item.number || 0) >= cart.maxItemQuantity"
+                    :aria-label="`增加${item.name}数量，最多${cart.maxItemQuantity}件`"
+                    @click="handleIncrease(item)"
+                  >+</button>
                 </div>
               </div>
             </article>
           </div>
 
           <div class="drawer__remark">
+            <label class="sr-only" for="cart-remark">订单备注</label>
             <textarea
+              id="cart-remark"
               v-model="cart.orderRemark"
               class="field-textarea"
-              placeholder="整单备注：如先送饮品、安静敲门、少辣等"
+              placeholder="订单备注：如配送时间、安装条件或材料颜色要求"
             />
           </div>
 
@@ -57,7 +69,8 @@
               </RouterLink>
             </div>
 
-            <select class="field-select" :value="selectedValue" @change="handleCouponChange">
+            <label class="sr-only" for="cart-coupon">选择优惠券</label>
+            <select id="cart-coupon" class="field-select" :value="selectedValue" @change="handleCouponChange">
               <option value="">不使用优惠券</option>
               <option v-for="coupon in availableCoupons" :key="coupon.id" :value="coupon.id">
                 {{ coupon.voucherName }} · 满{{ coupon.thresholdAmount }} 减{{ coupon.discountAmount }}
@@ -79,12 +92,16 @@
               <strong>实付 ￥{{ payableAmount.toFixed(2) }}</strong>
             </div>
             <div class="drawer__footer-actions">
-              <button class="ghost-button" @click="handleClear">清空</button>
-              <button class="primary-button" :disabled="!shop.isOpen" @click="goCheckout">
-                {{ shop.isOpen ? "确认结算" : "打烊中" }}
+              <button class="ghost-button" type="button" :disabled="!cart.items.length || cart.mutating" @click="handleClear">清空</button>
+              <button class="primary-button" type="button" :disabled="checkoutDisabled" @click="goCheckout">
+                {{ cart.loading || cart.mutating ? "处理中…" : shop.isOpen ? "确认结算" : "暂停下单" }}
               </button>
             </div>
           </div>
+          <p v-if="actionError" class="drawer__error" role="alert" aria-live="assertive">{{ actionError }}</p>
+          <p v-else-if="auth.isLoggedIn && cart.checkoutMessage" class="drawer__limit" aria-live="polite">
+            {{ cart.checkoutMessage }}
+          </p>
         </aside>
       </div>
     </Transition>
@@ -92,7 +109,7 @@
 </template>
 
 <script setup>
-import { computed, onMounted, watch } from "vue";
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { useRouter } from "vue-router";
 import { useAuthStore } from "../stores/auth";
 import { useCartStore } from "../stores/cart";
@@ -106,12 +123,43 @@ const coupons = useCouponsStore();
 const shop = useShopStore();
 const ui = useUiStore();
 const router = useRouter();
+const panel = ref(null);
+const actionError = ref("");
+let previouslyFocused = null;
+const focusableSelector = 'button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), a[href], [tabindex]:not([tabindex="-1"])';
+
+function handleDrawerKeydown(event) {
+  if (event.key === "Escape") { event.preventDefault(); ui.closeCart(); return; }
+  if (event.key !== "Tab" || !panel.value) return;
+  const controls = [...panel.value.querySelectorAll(focusableSelector)];
+  if (!controls.length) return;
+  const first = controls[0]; const last = controls[controls.length - 1];
+  if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+  else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+}
+
+watch(() => ui.cartOpen, async (open) => {
+  if (open) {
+    previouslyFocused = document.activeElement;
+    await nextTick();
+    document.addEventListener("keydown", handleDrawerKeydown);
+    panel.value?.querySelector(focusableSelector)?.focus();
+  } else {
+    document.removeEventListener("keydown", handleDrawerKeydown);
+    previouslyFocused?.focus?.();
+    previouslyFocused = null;
+  }
+});
+onBeforeUnmount(() => document.removeEventListener("keydown", handleDrawerKeydown));
 
 const availableCoupons = computed(() => coupons.getAvailableCoupons(cart.totalAmount));
 const selectedCoupon = computed(() => coupons.getSelectedCoupon(cart.totalAmount));
 const selectedValue = computed(() => selectedCoupon.value?.id || "");
 const discountAmount = computed(() => coupons.getDiscountAmount(cart.totalAmount));
 const payableAmount = computed(() => Math.max(cart.totalAmount - discountAmount.value, 0));
+const checkoutDisabled = computed(() =>
+  !auth.isLoggedIn || !shop.isOpen || !cart.canCheckout || cart.loading || cart.mutating
+);
 
 watch(
   () => cart.totalAmount,
@@ -130,13 +178,47 @@ function handleCouponChange(event) {
 }
 
 async function handleClear() {
-  await cart.clear();
-  coupons.clearSelectedCoupon();
+  if (!cart.items.length || cart.mutating) return;
+  actionError.value = "";
+  try {
+    await cart.clear();
+    coupons.clearSelectedCoupon();
+  } catch (error) {
+    actionError.value = error?.message || "购物车清空失败，请稍后重试";
+  }
+}
+
+async function handleIncrease(item) {
+  actionError.value = "";
+  try {
+    await cart.increase(item);
+  } catch (error) {
+    actionError.value = error?.message || "商品数量更新失败，请稍后重试";
+  }
+}
+
+async function handleDecrease(item) {
+  actionError.value = "";
+  try {
+    await cart.decrease(item);
+  } catch (error) {
+    actionError.value = error?.message || "商品数量更新失败，请稍后重试";
+  }
 }
 
 function goCheckout() {
+  actionError.value = "";
+  if (!auth.isLoggedIn) {
+    actionError.value = "请先登录账户，再继续结算";
+    auth.openLogin();
+    return;
+  }
   if (!shop.isOpen) {
-    window.alert("当前酒店已打烊，暂不支持结算。");
+    actionError.value = "当前暂停提交新订单，请稍后再试";
+    return;
+  }
+  if (!cart.canCheckout) {
+    actionError.value = cart.checkoutMessage;
     return;
   }
   ui.closeCart();
@@ -154,7 +236,7 @@ function goCheckout() {
 .drawer__mask {
   position: absolute;
   inset: 0;
-  background: rgba(7, 18, 34, 0.34);
+  background: rgba(31, 27, 22, 0.48);
 }
 
 .drawer__panel {
@@ -164,7 +246,8 @@ function goCheckout() {
   width: min(560px, 100%);
   max-height: 84vh;
   padding: 20px;
-  border-radius: 28px 28px 0 0;
+  border-radius: 0;
+  border-width: 0 0 0 1px;
   display: grid;
   gap: 14px;
   overflow: auto;
@@ -198,7 +281,7 @@ function goCheckout() {
 .drawer__stepper button {
   width: 32px;
   height: 32px;
-  border-radius: 999px;
+  border-radius: var(--radius-sm);
   background: var(--color-gold-soft);
   color: var(--color-primary);
 }
@@ -248,5 +331,20 @@ function goCheckout() {
 
 .drawer__auth-button {
   margin-top: 12px;
+}
+
+.drawer__error,
+.drawer__limit {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.drawer__error {
+  color: var(--color-danger, #8f1d1d);
+}
+
+.drawer__limit {
+  color: var(--color-text-muted);
 }
 </style>

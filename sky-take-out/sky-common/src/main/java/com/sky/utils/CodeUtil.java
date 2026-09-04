@@ -16,7 +16,7 @@ public class CodeUtil {
 
     public static String defaultNickname() {
         int value = ThreadLocalRandom.current().nextInt(1000, 10000);
-        return "酒店用户_" + value;
+        return "筑家用户_" + value;
     }
 
     private CodeUtil() {

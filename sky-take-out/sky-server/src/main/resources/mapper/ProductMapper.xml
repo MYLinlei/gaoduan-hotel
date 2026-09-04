@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sky.mapper.ProductMapper">
+
+    <sql id="skuAggregate">
+        left join (
+            select product_id,
+                   min(sale_price) as sale_price,
+                   sum(greatest(stock - locked_stock, 0)) as available_stock,
+                   count(*) as enabled_sku_count
+            from product_sku
+            where status = 1 and is_deleted = 0
+            group by product_id
+        ) sa on sa.product_id = p.id
+    </sql>
+
+    <sql id="listColumns">
+        p.id,
+        p.legacy_dish_id,
+        p.category_id,
+        c.name as category_name,
+        p.product_code,
+        p.brand_name,
+        p.name,
+        p.subtitle,
+        p.unit,
+        p.main_image,
+        p.original_price,
+        p.attributes_json,
+        p.status,
+        p.sort,
+        sa.sale_price,
+        coalesce(sa.available_stock, 0) as available_stock,
+        coalesce(sa.enabled_sku_count, 0) as enabled_sku_count
+    </sql>
+
+    <sql id="publicProductConditions">
+        p.is_deleted = 0
+        and p.status = 1
+        and c.status = 1
+        <if test="categoryId != null">
+            and p.category_id = #{categoryId}
+        </if>
+        <if test="categoryName != null and categoryName != ''">
+            and c.name = #{categoryName}
+        </if>
+        <if test="keyword != null and keyword != ''">
+            and (p.name like concat('%', #{keyword}, '%')
+                 or p.brand_name like concat('%', #{keyword}, '%')
+                 or p.subtitle like concat('%', #{keyword}, '%'))
+        </if>
+    </sql>
+
+    <select id="count" resultType="java.lang.Long">
+        select count(*)
+        from product p
+        inner join category c on c.id = p.category_id
+        where <include refid="publicProductConditions"/>
+    </select>
+
+    <select id="pageQuery" resultType="com.sky.vo.ProductListVO">
+        select <include refid="listColumns"/>
+        from product p
+        inner join category c on c.id = p.category_id
+        <include refid="skuAggregate"/>
+        where <include refid="publicProductConditions"/>
+        <choose>
+            <when test="sort == 'price-asc'">
+                order by sa.sale_price is null, sa.sale_price asc, p.sort desc, p.id desc
+            </when>
+            <when test="sort == 'price-desc'">
+                order by sa.sale_price is null, sa.sale_price desc, p.sort desc, p.id desc
+            </when>
+            <otherwise>
+                order by p.sort desc, p.id desc
+            </otherwise>
+        </choose>
+        limit #{offset}, #{pageSize}
+    </select>
+
+    <select id="getDetailById" resultType="com.sky.vo.ProductDetailVO">
+        select <include refid="listColumns"/>,
+               p.detail_description
+        from product p
+        inner join category c on c.id = p.category_id
+        <include refid="skuAggregate"/>
+        where p.id = #{id}
+          and p.is_deleted = 0
+        limit 1
+    </select>
+
+    <select id="getPurchasableById" resultType="com.sky.entity.Product">
+        select *
+        from product
+        where id = #{id}
+          and status = 1
+          and is_deleted = 0
+        limit 1
+    </select>
+
+    <select id="listRelated" resultType="com.sky.vo.ProductListVO">
+        select <include refid="listColumns"/>
+        from product p
+        inner join category c on c.id = p.category_id
+        <include refid="skuAggregate"/>
+        where p.category_id = #{categoryId}
+          and p.id != #{excludeId}
+          and p.status = 1
+          and p.is_deleted = 0
+          and c.status = 1
+        order by p.sort desc, p.id desc
+        limit #{limit}
+    </select>
+</mapper>

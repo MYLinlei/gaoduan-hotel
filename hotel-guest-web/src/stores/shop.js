@@ -8,7 +8,7 @@ export const useShopStore = defineStore("shop", () => {
   const loaded = ref(false);
 
   const isOpen = computed(() => status.value !== 0);
-  const statusText = computed(() => (isOpen.value ? "营业中" : "打烊中"));
+  const statusText = computed(() => (isOpen.value ? "可下单" : "暂停下单"));
 
   async function loadStatus() {
     loading.value = true;

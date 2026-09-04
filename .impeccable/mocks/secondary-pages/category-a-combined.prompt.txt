@@ -1,0 +1,11 @@
+Use case: ui-mockup
+Asset type: final combined high-fidelity 1440px desktop category page comp for 筑家优选
+Input images: Image 1 is the approved primary structure and header reference; Image 2 contributes only the horizontal buying-guide strip inserted after the first product row; Image 3 contributes only the disciplined aligned specification rows and quantity-estimator entry. Do not copy Image 3 filter counts, promotional claim, reordered header, or other unapproved text.
+Primary request: Merge the approved composition “A1 主体 + A2 指南条 + A3 规格基线” into one coherent production web screenshot, straight-on at 1440×1000, for the 瓷砖 category.
+Preserve from Image 1: exact three-tier commerce header, breadcrumb, restrained 瓷砖 material masthead, 236px left filter ledger, results toolbar, three product columns, paging rhythm, and overall generous but efficient spacing.
+Add from Image 2: after the first product row, a quiet full-width horizontal “瓷砖选购提示” strip with a small stone-edge crop and three checkpoints 尺寸 / 表面 / 防滑 plus 查看完整指南. It must read as a catalog note, not an advertisement.
+Add from Image 3: align every product card’s core parameters on a two-row baseline so size, finish and slip resistance can be compared vertically. Add only the beginning of a neutral “瓷砖用量怎么估算” entry near the lower fold, without numerical business claims.
+Left filters: 空间, 尺寸, 表面工艺, 颜色, 防滑等级, 纹理. Toolbar: result count, two selected conditions, 清除条件, 综合排序. Product cards: local-feeling realistic tile photography, neutral fictional brand, Chinese name, 2–3 specs, price with 元/㎡, availability text, favorite outline icon, 查看详情, 加入购物车.
+Visual system: architectural material sample book × contemporary Chinese interiors editorial magazine; limestone white, warm gray, charcoal and sparse terracotta; Chinese serif for editorial headings, sans-serif commerce text, flat surfaces, near-square corners, thin divider rules.
+Constraints: desktop only; no horizontal overflow; no fabricated ratings, sales counts, filter result counts per option, brand authorization, discount thresholds, countdowns, inventory quantities, delivery coverage, warranty days, or service promises. Chinese UI text only.
+Avoid: hotel or restaurant vocabulary, blue-gold styling, glassmorphism, gradients, generic rounded card wall, excessive pills, floating admin panels, emoji, poster layout, watermarks.

@@ -3,50 +3,45 @@
     <section class="checkout-page">
       <header class="glass-card checkout-page__hero">
         <p class="eyebrow">提交订单</p>
-        <h1>确认点单信息</h1>
-        <p>已切换为真实后端下单流程，提交后会同步生成正式订单。</p>
+        <h1>确认订单信息</h1>
+        <p>请核对收货方式、商品明细与优惠信息，提交后可在“我的订单”查看进度。</p>
       </header>
 
       <section v-if="!auth.isLoggedIn" class="glass-card checkout-page__block">
         <h2>请先登录</h2>
-        <p class="checkout-page__hint">登录后可获取真实购物车、优惠券与订单状态。</p>
-        <button class="primary-button" @click="auth.openLogin">住客登录</button>
+        <p class="checkout-page__hint">登录后可继续结算，并同步购物车、优惠券与订单状态。</p>
+        <button class="primary-button" type="button" @click="auth.openLogin">账户登录</button>
       </section>
 
       <template v-else>
         <section v-if="!shop.isOpen" class="glass-card checkout-page__block checkout-page__closed">
-          <h2>当前酒店已打烊</h2>
-          <p class="checkout-page__hint">打烊期间暂不支持提交新订单，请稍后再试。</p>
+          <h2>当前暂停提交订单</h2>
+          <p class="checkout-page__hint">已选择的商品会继续保留，请稍后再试。</p>
         </section>
 
         <section class="glass-card checkout-page__block">
           <div class="section-title">
-            <h2>用餐方式</h2>
+            <h2>收货方式</h2>
           </div>
           <div class="checkout-page__mode">
-            <button class="ghost-button" :class="{ active: diningType === '堂食' }" @click="diningType = '堂食'">
-              堂食
+            <button class="ghost-button" :class="{ active: deliveryType === '门店自提' }" @click="deliveryType = '门店自提'">
+              门店自提
             </button>
             <button
               class="ghost-button"
-              :class="{ active: diningType === '客房送餐' }"
-              @click="diningType = '客房送餐'"
+              :class="{ active: deliveryType === '配送到家' }"
+              @click="deliveryType = '配送到家'"
             >
-              客房送餐
+              配送到家
             </button>
           </div>
 
+          <label class="sr-only" for="checkout-location">{{ deliveryType === '门店自提' ? '自提人姓名与联系电话' : '详细配送地址' }}</label>
           <input
-            v-if="diningType === '堂食'"
+            id="checkout-location"
             v-model="location"
             class="field-input"
-            placeholder="请输入桌台号，例如 A08 / 包间 2"
-          />
-          <input
-            v-else
-            v-model="location"
-            class="field-input"
-            placeholder="请输入房号，例如 1808"
+            :placeholder="deliveryType === '门店自提' ? '请输入自提人姓名与联系电话' : '请输入详细配送地址'"
           />
         </section>
 
@@ -54,26 +49,31 @@
           <div class="section-title">
             <h2>订单明细</h2>
           </div>
-          <div v-if="!cart.items.length" class="field-card">购物车为空，请先选择菜品。</div>
+          <div v-if="!cart.items.length" class="field-card checkout-page__empty">
+            <span>购物车为空，至少选择 1 件商品后才能结算。</span>
+            <RouterLink class="secondary-button" to="/menu">返回选购</RouterLink>
+          </div>
           <div v-else class="checkout-page__items">
             <article v-for="item in cart.items" :key="item.id" class="field-card checkout-page__item">
               <div>
                 <h3>{{ item.name }}</h3>
-                <p v-if="item.dishFlavor">{{ item.dishFlavor }}</p>
+                <p v-if="item.skuSpec || item.dishFlavor">{{ item.skuSpec || item.dishFlavor }}</p>
               </div>
               <div class="checkout-page__price">
                 <div>
-                  <span>￥{{ Number(item.amount || 0).toFixed(2) }}</span>
+                  <span>￥{{ Number(item.amount || 0).toFixed(2) }}{{ item.unit ? ` / ${item.unit}` : "" }}</span>
                   <strong>x{{ item.number }}</strong>
                 </div>
                 <strong>￥{{ (Number(item.amount || 0) * Number(item.number || 0)).toFixed(2) }}</strong>
               </div>
             </article>
           </div>
+          <label class="sr-only" for="checkout-remark">订单备注</label>
           <textarea
+            id="checkout-remark"
             v-model="cart.orderRemark"
             class="field-textarea"
-            placeholder="整单备注：请填写送餐偏好、加急说明、安静敲门等"
+            placeholder="订单备注：请填写配送时间、安装条件或材料颜色要求"
           />
         </section>
 
@@ -128,9 +128,12 @@
             <strong>实付金额 ￥{{ payableAmount.toFixed(2) }}</strong>
           </div>
           <button class="primary-button" :disabled="submitDisabled" @click="submitOrder">
-            {{ submitting ? "提交中..." : shop.isOpen ? "提交订单" : "打烊中" }}
+            {{ submitting || cart.loading || cart.mutating ? "处理中…" : shop.isOpen ? "提交订单" : "暂停下单" }}
           </button>
         </section>
+        <p v-if="checkoutError" class="checkout-page__error" role="alert" aria-live="assertive">
+          {{ checkoutError }}
+        </p>
 
         <Transition name="fade-slide">
           <section v-if="successOrder" class="glass-card checkout-page__result">
@@ -163,22 +166,25 @@ const orders = useOrdersStore();
 const shop = useShopStore();
 const router = useRouter();
 
-const diningType = ref("客房送餐");
+const deliveryType = ref("配送到家");
 const location = ref("");
 const paymentMethod = ref(1);
 const paymentOptions = [
   { label: "微信支付", value: 1 },
   { label: "支付宝", value: 2 },
-  { label: "挂房账", value: 3 }
+  { label: "到店支付", value: 3 }
 ];
 const submitting = ref(false);
 const successOrder = ref(null);
+const checkoutError = ref("");
 
 const availableCoupons = computed(() => coupons.getAvailableCoupons(cart.totalAmount));
 const selectedCoupon = computed(() => coupons.getSelectedCoupon(cart.totalAmount));
 const discountAmount = computed(() => coupons.getDiscountAmount(cart.totalAmount));
 const payableAmount = computed(() => Math.max(cart.totalAmount - discountAmount.value, 0));
-const submitDisabled = computed(() => submitting.value || !cart.items.length || !shop.isOpen);
+const submitDisabled = computed(() =>
+  submitting.value || cart.loading || cart.mutating || !cart.canCheckout || !shop.isOpen
+);
 
 watch(
   () => cart.totalAmount,
@@ -198,15 +204,15 @@ function handleCouponPick(couponId) {
   coupons.selectCoupon(couponId, cart.totalAmount);
 }
 
-async function ensureRoomAddress() {
+async function ensureDeliveryAddress() {
   const list = await request("/user/addressBook/list");
-  const existing = list.find((item) => item.label === "客房送餐") || list.find((item) => item.isDefault === 1);
+  const existing = list.find((item) => item.label === "配送地址") || list.find((item) => item.isDefault === 1);
   const payload = {
-    consignee: auth.user?.name || "住客",
+    consignee: auth.user?.name || "顾客",
     phone: auth.user?.phone || "13800138000",
     sex: "1",
-    detail: `房号 ${location.value.trim()}`,
-    label: "客房送餐",
+    detail: location.value.trim(),
+    label: "配送地址",
     isDefault: 1
   };
 
@@ -230,26 +236,31 @@ async function ensureRoomAddress() {
 }
 
 async function submitOrder() {
-  if (!cart.items.length || submitting.value) return;
-  await shop.loadStatus();
-  if (!shop.isOpen) {
-    window.alert("当前酒店已打烊，暂不支持下单。");
+  if (submitting.value || cart.loading || cart.mutating) return;
+  checkoutError.value = "";
+  if (!cart.canCheckout) {
+    checkoutError.value = cart.checkoutMessage;
     return;
   }
   if (!location.value.trim()) {
-    window.alert(diningType.value === "堂食" ? "桌台号不能为空" : "房号不能为空");
+    checkoutError.value = deliveryType.value === "门店自提" ? "请填写自提联系人" : "请填写详细配送地址";
     return;
   }
 
   submitting.value = true;
   try {
-    const addressBookId = diningType.value === "客房送餐" ? await ensureRoomAddress() : null;
+    await shop.loadStatus();
+    if (!shop.isOpen) {
+      checkoutError.value = "当前暂停提交新订单，请稍后再试";
+      return;
+    }
+    const addressBookId = deliveryType.value === "配送到家" ? await ensureDeliveryAddress() : null;
     const submitRes = await request("/user/order/submit", {
       method: "POST",
       body: {
-        orderType: diningType.value === "堂食" ? 2 : 1,
+        orderType: deliveryType.value === "门店自提" ? 2 : 1,
         addressBookId,
-        tableNo: diningType.value === "堂食" ? location.value.trim() : "",
+        tableNo: deliveryType.value === "门店自提" ? location.value.trim() : "",
         couponId: selectedCoupon.value?.id || null,
         payMethod: paymentMethod.value,
         remark: cart.orderRemark,
@@ -279,6 +290,8 @@ async function submitOrder() {
     window.setTimeout(() => {
       router.push("/orders");
     }, 1000);
+  } catch (error) {
+    checkoutError.value = error?.message || "订单提交失败，请核对商品与收货信息后重试";
   } finally {
     submitting.value = false;
   }
@@ -324,7 +337,7 @@ onMounted(async () => {
 }
 
 .checkout-page__mode .active {
-  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-soft));
+  background: var(--color-ink);
   color: #fff;
 }
 
@@ -361,8 +374,8 @@ onMounted(async () => {
 .checkout-page__coupon-card {
   padding: 16px;
   border-radius: var(--radius-lg);
-  border: 1px solid rgba(185, 151, 91, 0.32);
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(252, 248, 241, 0.88));
+  border: 1px solid var(--color-line);
+  background: var(--color-paper);
   text-align: left;
   display: grid;
   gap: 8px;
@@ -377,7 +390,7 @@ onMounted(async () => {
 
 .checkout-page__coupon-card strong {
   font-size: 26px;
-  color: var(--color-primary);
+  color: var(--color-accent-dark);
 }
 
 .checkout-page__coupon-card p,
@@ -386,8 +399,8 @@ onMounted(async () => {
 }
 
 .checkout-page__coupon-card.active {
-  border-color: var(--color-gold);
-  box-shadow: 0 0 0 2px rgba(185, 151, 91, 0.12);
+  border-color: var(--color-accent);
+  box-shadow: inset 3px 0 0 var(--color-accent);
 }
 
 .checkout-page__summary button {
@@ -420,5 +433,21 @@ onMounted(async () => {
 
 .checkout-page__closed {
   border: 1px solid rgba(143, 29, 29, 0.16);
+}
+
+.checkout-page__empty {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.checkout-page__error {
+  margin: 0;
+  padding: 12px 16px;
+  border-left: 3px solid var(--color-danger, #8f1d1d);
+  background: rgba(143, 29, 29, 0.06);
+  color: var(--color-danger, #8f1d1d);
+  line-height: 1.6;
 }
 </style>

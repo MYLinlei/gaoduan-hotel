@@ -1,0 +1,247 @@
+{
+  "tool": "build-phase",
+  "version": 2,
+  "startedAt": "2026-09-02T03:26:00.608Z",
+  "comp": ".impeccable/mocks/homepage-comp-b.png",
+  "direction": null,
+  "breakpoint": "1440x1000",
+  "artifact": null,
+  "phase": "hero",
+  "phases": {
+    "comps": {
+      "status": "skipped",
+      "openedAt": null,
+      "closedAt": null,
+      "attempts": 0,
+      "notes": [
+        {
+          "at": "2026-09-02T03:26:00.608Z",
+          "text": "started with an approved comp; the comp round happened before this state (surface round or manual)"
+        }
+      ],
+      "gate": null,
+      "forced": null
+    },
+    "spec": {
+      "status": "closed",
+      "openedAt": "2026-09-02T03:26:00.604Z",
+      "closedAt": "2026-09-02T03:38:00.529Z",
+      "attempts": 3,
+      "notes": [],
+      "gate": {
+        "ok": true,
+        "reasons": [],
+        "summary": "16 regions, 5 plates, 3 text regions measured",
+        "at": "2026-09-02T03:38:00.529Z"
+      },
+      "forced": null
+    },
+    "plates": {
+      "status": "closed",
+      "openedAt": "2026-09-02T03:38:00.529Z",
+      "closedAt": "2026-09-02T07:46:39.749Z",
+      "attempts": 8,
+      "notes": [],
+      "gate": {
+        "ok": true,
+        "reasons": [],
+        "summary": "5/5 plates",
+        "at": "2026-09-02T07:46:39.749Z"
+      },
+      "forced": null
+    },
+    "hero": {
+      "status": "open",
+      "openedAt": "2026-09-02T07:46:39.749Z",
+      "closedAt": null,
+      "attempts": 0,
+      "notes": [],
+      "gate": {
+        "ok": false,
+        "reasons": [
+          "hero overall 62.9% < 72% (structure 30%, color 90%, detail 63%)",
+          "region hero-action is missing (detail 0%, structure 55%): the comp shows material the build does not",
+          "region tile-product is missing (detail 14%, structure 53%): the comp shows material the build does not",
+          "region bath-product is missing (detail 5%, structure 50%): the comp shows material the build does not",
+          "region floor-product is missing (detail 2%, structure 44%): the comp shows material the build does not",
+          "region cabinet-product is missing (detail 12%, structure 43%): the comp shows material the build does not",
+          "region brand-mark (text) is contradicted (structure 25%, detail added 13%): the composition of this text region differs from the comp; re-derive it from the spec box",
+          "region hero-heading (text) is contradicted (structure 26%, detail added 30%): the composition of this text region differs from the comp; re-derive it from the spec box",
+          "region hero-copy (text) is contradicted (structure 50%, detail added 48%): the composition of this text region differs from the comp; re-derive it from the spec box",
+          "region hero-search (control) is contradicted (structure 48%, detail added 47%): this control does not read as the comp's: rebuild its chrome from the crop (border, fill, radius, chevron or arrow, label size) rather than from a component default",
+          "control global-search drifts to 59% (structure 70%, color 67%): its chrome differs from the comp's; open .impeccable/review/diff/hero/regions/global-search.png and match the border, fill, radius, chevron or arrow, and label size",
+          "READINGS, each one CSS edit (6):",
+          "text hero-heading: cap height 51.8px in the build, 40.7px in the comp (+27%); set font-size so the cap height renders at 40.7px (font-match ranked Kalnia Glaze 400 at 58px)",
+          "text brand-mark: ink is #444443 in the build, #121111 in the comp; use the comp's colour",
+          "text hero-copy: ink is #241c1b in the build, #f8f8f8 in the comp; use the comp's colour",
+          "chrome global-header: its rule sits 76px into the box in the comp and 175px in the build (+99px), so the strip is taller than the comp's; match the height, not only the position",
+          "control hero-action: its rule sits 37px into the box in the comp and 26px in the build (-11px), so the strip is shorter than the comp's; match the height, not only the position",
+          "chrome ranking-preview: its rule sits 49px into the box in the comp and 66px in the build (+17px), so the strip is taller than the comp's; match the height, not only the position",
+          "plate tile-product is clipped at the left and top: the comp's artwork keeps a margin there (ink box 269x302 at 32,12 in the region) and the build's runs to the edge (301x314 at 0,0); size the box to the artwork's aspect and use object-fit: contain, or place the <img> at the artwork's own size, never cover on a narrower box",
+          "plate bath-product is clipped at the top: the comp's artwork keeps a margin there (ink box 301x302 at 0,11 in the region) and the build's runs to the edge (301x314 at 0,0); size the box to the artwork's aspect and use object-fit: contain, or place the <img> at the artwork's own size, never cover on a narrower box",
+          "plate floor-product is clipped at the top: the comp's artwork keeps a margin there (ink box 301x303 at 0,11 in the region) and the build's runs to the edge (301x314 at 0,0); size the box to the artwork's aspect and use object-fit: contain, or place the <img> at the artwork's own size, never cover on a narrower box",
+          "plate cabinet-product is clipped at the right: the comp's artwork keeps a margin there (ink box 295x302 at 0,11 in the region) and the build's runs to the edge (301x220 at 0,94); size the box to the artwork's aspect and use object-fit: contain, or place the <img> at the artwork's own size, never cover on a narrower box"
+        ],
+        "summary": "hero 63% (drift)",
+        "score": 0.6295,
+        "verdict": "drift",
+        "report": ".impeccable/review/diff/hero/report.json",
+        "sideBySide": ".impeccable/review/diff/hero/side-by-side.png",
+        "worst": [
+          "floor-product missing 30%",
+          "cabinet-product missing 34%",
+          "bath-product missing 35%"
+        ],
+        "worstIds": [
+          "floor-product",
+          "cabinet-product",
+          "bath-product"
+        ],
+        "worstCrops": [
+          {
+            "id": "floor-product",
+            "verdict": "missing",
+            "score": {
+              "overall": 0.303,
+              "structure": 0.438,
+              "color": 0.8508,
+              "colorIntersection": 0.7499,
+              "paletteMatch": 0.9051,
+              "detail": 0.0163,
+              "detailRaw": 0.1465,
+              "detailAdded": 0.2604,
+              "bands": 0.3048
+            },
+            "file": ".impeccable/review/diff/hero/regions/floor-product.png"
+          },
+          {
+            "id": "cabinet-product",
+            "verdict": "missing",
+            "score": {
+              "overall": 0.3435,
+              "structure": 0.4342,
+              "color": 0.7748,
+              "colorIntersection": 0.6534,
+              "paletteMatch": 0.8401,
+              "detail": 0.1162,
+              "detailRaw": 0.1891,
+              "detailAdded": 0.1458,
+              "bands": 0.4381
+            },
+            "file": ".impeccable/review/diff/hero/regions/cabinet-product.png"
+          },
+          {
+            "id": "bath-product",
+            "verdict": "missing",
+            "score": {
+              "overall": 0.352,
+              "structure": 0.4992,
+              "color": 0.8356,
+              "colorIntersection": 0.7323,
+              "paletteMatch": 0.8912,
+              "detail": 0.0538,
+              "detailRaw": 0.1944,
+              "detailAdded": 0.2813,
+              "bands": 0.6629
+            },
+            "file": ".impeccable/review/diff/hero/regions/bath-product.png"
+          }
+        ],
+        "advisories": [],
+        "regionVerdicts": {
+          "service-strip": "drift",
+          "global-header": "drift",
+          "brand-mark": "contradicted",
+          "global-search": "drift",
+          "hero-space": "drift",
+          "hero-heading": "contradicted",
+          "hero-copy": "contradicted",
+          "hero-search": "contradicted",
+          "hero-action": "missing",
+          "tile-product": "missing",
+          "bath-product": "missing",
+          "floor-product": "missing",
+          "cabinet-product": "missing",
+          "category-index": "contradicted",
+          "coupon-preview": "drift",
+          "ranking-preview": "drift"
+        },
+        "at": "2026-09-02T07:53:24.262Z"
+      },
+      "forced": null,
+      "readingsSeen": {
+        "text hero-heading: cap height 51.8px in the build, 40.7px in the comp (+27%); set font-size so the cap height renders at 40.7px (font-match ranked Kalnia Glaze 400 at 58px)": 2,
+        "text brand-mark: ink is #444443 in the build, #121111 in the comp; use the comp's colour": 2,
+        "text hero-copy: ink is #241c1b in the build, #f8f8f8 in the comp; use the comp's colour": 2,
+        "chrome global-header: its rule sits 76px into the box in the comp and 175px in the build (+99px), so the strip is taller than the comp's; match the height, not only the position": 2,
+        "control hero-action: its rule sits 37px into the box in the comp and 26px in the build (-11px), so the strip is shorter than the comp's; match the height, not only the position": 2,
+        "chrome ranking-preview: its rule sits 49px into the box in the comp and 66px in the build (+17px), so the strip is taller than the comp's; match the height, not only the position": 2
+      },
+      "records": 2
+    },
+    "sections": {
+      "status": "pending",
+      "openedAt": null,
+      "closedAt": null,
+      "attempts": 0,
+      "notes": [],
+      "gate": null,
+      "forced": null
+    },
+    "motion": {
+      "status": "pending",
+      "openedAt": null,
+      "closedAt": null,
+      "attempts": 0,
+      "notes": [],
+      "gate": null,
+      "forced": null
+    },
+    "responsive": {
+      "status": "pending",
+      "openedAt": null,
+      "closedAt": null,
+      "attempts": 0,
+      "notes": [],
+      "gate": null,
+      "forced": null
+    },
+    "review": {
+      "status": "pending",
+      "openedAt": null,
+      "closedAt": null,
+      "attempts": 0,
+      "notes": [],
+      "gate": null,
+      "forced": null
+    }
+  },
+  "finish": null,
+  "plates": {
+    "hero-space": {
+      "status": "ok",
+      "score": 0.7422,
+      "size": "1881x836"
+    },
+    "tile-product": {
+      "status": "ok",
+      "score": 0.4921,
+      "size": "1254x1254"
+    },
+    "bath-product": {
+      "status": "ok",
+      "score": 0.5468,
+      "size": "1254x1254"
+    },
+    "floor-product": {
+      "status": "ok",
+      "score": 0.5087,
+      "size": "1254x1254"
+    },
+    "cabinet-product": {
+      "status": "ok",
+      "score": 1,
+      "size": "602x628"
+    }
+  }
+}

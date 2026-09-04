@@ -23,8 +23,18 @@ public interface OrdersMapper {
     @Select("select * from orders where id = #{id}")
     Orders getById(Long id);
 
+    @Select("select * from orders where id = #{id} for update")
+    Orders getByIdForUpdate(Long id);
+
     @Select("select * from orders where number = #{number}")
     Orders getByNumber(String number);
+
+    @Select("select * from orders where number = #{number} for update")
+    Orders getByNumberForUpdate(String number);
+
+    @Select("select id from orders where status = 1 and pay_status = 0 and order_time < #{deadline} " +
+            "order by order_time asc limit 100")
+    List<Long> listExpiredPendingPaymentIds(LocalDateTime deadline);
 
     void update(Orders orders);
 
